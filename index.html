@@ -90,7 +90,10 @@
         </div>
 
         <div class="row">
-            <label class="prop-label">color:</label>
+            <div class="prop-label" style="display:flex; align-items:center; justify-content:flex-end;">
+                <span style="margin-right:4px;">color:</span>
+                <div id="current_color_preview" style="width:10px; height:12px; border:1px solid rgba(128,128,128,0.6); border-radius:1px; background-color: #000;"></div>
+            </div>
             <input type="number" id="cyan" class="hostInput cmyk-input" min="0" max="100" step="10" value="0" title="Cyan"/>
             <input type="number" id="magenta" class="hostInput cmyk-input" min="0" max="100" step="10" value="0" title="Magenta"/>
             <input type="number" id="yellow" class="hostInput cmyk-input" min="0" max="100" step="10" value="0" title="Yellow"/>

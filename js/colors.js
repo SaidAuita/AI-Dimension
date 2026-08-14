@@ -58,6 +58,14 @@ const Colors = (function() {
         }
     }
 
+    function updateCurrentColorPreview() {
+        const previewEl = document.getElementById('current_color_preview');
+        if (previewEl) {
+            const current = getCurrentCMYK();
+            previewEl.style.backgroundColor = cmykToCss(current.c, current.m, current.y, current.k);
+        }
+    }
+
     function getCurrentCMYK() {
         return {
             c: parseFloat(document.getElementById('cyan').value) || 0,
@@ -95,6 +103,14 @@ const Colors = (function() {
                 }
             });
         });
+
+        const cmykInputs = document.querySelectorAll('.cmyk-input');
+        cmykInputs.forEach(input => {
+            input.addEventListener('input', updateCurrentColorPreview);
+            input.addEventListener('change', updateCurrentColorPreview);
+        });
+
+        updateCurrentColorPreview();
     }
 
     function resetColors() {
