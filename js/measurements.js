@@ -42,6 +42,7 @@ const Measurements = (function() {
         const k = parseFloat(document.getElementById('black').value) || 0;
 
         const addUnit = document.getElementById('add_mm').checked;
+        const scaleVal = document.getElementById('scale_ratio') ? document.getElementById('scale_ratio').value : '1:1';
         const addLay = document.getElementById('add_layer').checked;
         const layName = document.getElementById('layer_name_text').value || 'layout';
         const outArtboardEl = document.getElementById('out_artboard');
@@ -61,6 +62,7 @@ const Measurements = (function() {
             colComp: [c, m, y, k],
             units: addUnit ? (document.getElementById('unit_select') ? document.getElementById('unit_select').value : 'mm') : '',
             unitType: document.getElementById('unit_select') ? document.getElementById('unit_select').value : 'mm',
+            scale: scaleVal,
             addLay: addLay,
             layName: layName,
             fontNum: 0,

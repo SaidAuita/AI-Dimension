@@ -14,6 +14,25 @@ var AIMeasurment = (function () {
         return ('1' + (new Date()) * Math.random() * 10000).slice(0, len);
     }
 
+    function parseScale(val) {
+        if (typeof val === 'number') return (val > 0) ? val : 1;
+        if (!val || typeof val !== 'string') return 1;
+        val = val.replace(/\s+/g, '');
+        if (val.indexOf(':') !== -1) {
+            var parts = val.split(':');
+            var left = parseFloat(parts[0]);
+            var right = parseFloat(parts[1]);
+            if (!isNaN(left) && !isNaN(right) && left > 0 && right > 0) {
+                return right / left;
+            }
+        }
+        var num = parseFloat(val);
+        if (!isNaN(num) && num > 0) {
+            return num;
+        }
+        return 1;
+    }
+
     function setCmyk(comp) {
         var col = new CMYKColor();
         col.cyan = comp[0];
@@ -243,9 +262,11 @@ var AIMeasurment = (function () {
         else if (unitType === 'in') unitScale = 72.0;
         else if (unitType === 'pt' || unitType === 'px') unitScale = 1.0;
 
-        var lablW = Math.round(elW / (unitScale / p)) / p;
-        var lablH = Math.round(elH / (unitScale / p)) / p;
-        var lablR = Math.round((elW / 2) / (unitScale / p)) / p;
+        var scaleVal = (u.scale !== undefined) ? parseScale(u.scale) : 1;
+
+        var lablW = Math.round((elW * scaleVal) / (unitScale / p)) / p;
+        var lablH = Math.round((elH * scaleVal) / (unitScale / p)) / p;
+        var lablR = Math.round(((elW * scaleVal) / 2) / (unitScale / p)) / p;
 
         var lay, meas, txt;
 
@@ -507,6 +528,24 @@ var AIMeasurment = (function () {
             } catch (e) {
                 return false;
             }
+        },
+
+        deleteAll: function() {
+            if (!app.documents.length) return 0;
+            var doc = app.activeDocument;
+            var count = 0;
+            try {
+                for (var i = doc.groupItems.length - 1; i >= 0; i--) {
+                    var grp = doc.groupItems[i];
+                    try {
+                        if (grp.name && grp.name.match(/^\d{7}$/)) {
+                            grp.remove();
+                            count++;
+                        }
+                    } catch (eG) {}
+                }
+            } catch (e) {}
+            return count;
         }
     };
 
@@ -519,4 +558,8 @@ function measAllSelect(u) {
 
 function delMeasByName(name) {
     return AIMeasurment.deleteByName(name);
+}
+
+function delAllMeasurements() {
+    return AIMeasurment.deleteAll();
 }

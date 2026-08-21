@@ -3,12 +3,11 @@
 <head>
     <meta charset="utf-8">
     <link id="hostStyle" rel="stylesheet" href="css/styles.css"/>
-    <title>AI Dimension v1.10</title>
+    <title>AI Dimension v1.2</title>
 </head>
 <body class="hostElt">
 
 <div class="panel-container">
-
 
     <!-- MEASUREMENT BUTTONS -->
     <div class="measurements-block">
@@ -16,23 +15,23 @@
             <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"/><path d="M6 18l12-12"/></svg>
         </button>
 
-        <div class="cross-layout">
-            <button id="btn_top" class="hostButton icon-btn" title="Top Dimension (Ctrl for 2 objects)">
-                <svg viewBox="0 0 24 24"><path d="M12 4v16m-4-12l4-4 4 4"/></svg>
+        <div class="dir-arrows">
+            <button id="btn_top" class="hostButton icon-btn arrow-btn" title="Top Dimension">
+                <svg viewBox="0 0 24 24"><path d="M12 4l-6 8h12z" fill="currentColor"/></svg>
             </button>
-            <div class="cross-middle">
-                <button id="btn_left" class="hostButton icon-btn" title="Left Dimension">
-                    <svg viewBox="0 0 24 24"><path d="M4 12h16m-12-4l-4 4 4 4"/></svg>
+            <div class="horizontal-arrows">
+                <button id="btn_left" class="hostButton icon-btn arrow-btn" title="Left Dimension">
+                    <svg viewBox="0 0 24 24"><path d="M4 12l8-6v12z" fill="currentColor"/></svg>
                 </button>
                 <button id="btn_cent" class="hostButton icon-btn" title="Center Point">
-                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-dasharray="2,2"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
                 </button>
-                <button id="btn_right" class="hostButton icon-btn" title="Right Dimension">
-                    <svg viewBox="0 0 24 24"><path d="M20 12H4m12 4l4-4-4-4"/></svg>
+                <button id="btn_right" class="hostButton icon-btn arrow-btn" title="Right Dimension">
+                    <svg viewBox="0 0 24 24"><path d="M20 12l-8-6v12z" fill="currentColor"/></svg>
                 </button>
             </div>
-            <button id="btn_bott" class="hostButton icon-btn" title="Bottom Dimension">
-                <svg viewBox="0 0 24 24"><path d="M12 20V4m4 12l-4 4-4-4"/></svg>
+            <button id="btn_bott" class="hostButton icon-btn arrow-btn" title="Bottom Dimension">
+                <svg viewBox="0 0 24 24"><path d="M12 20l-6-8h12z" fill="currentColor"/></svg>
             </button>
         </div>
         
@@ -46,7 +45,9 @@
         
         <div class="row">
             <label class="checkbox-label"><input type="checkbox" id="add_mm"/> unit</label>
-            <label class="checkbox-label"><input type="checkbox" id="add_layer"/> layer:</label>
+            <label class="prop-label" style="width: auto; margin-left: 4px; margin-right: 2px;">scale:</label>
+            <input type="text" id="scale_ratio" class="hostInput" value="1:1" style="width: 36px; text-align: center;" title="Scale ratio (e.g., 1:1, 1:10, 1:50, or multiplier like 10)"/>
+            <label class="checkbox-label" style="margin-left: 4px;"><input type="checkbox" id="add_layer"/> layer:</label>
             <input type="text" id="layer_name_text" class="hostInput text-input" value="layout"/>
         </div>
 
@@ -117,7 +118,8 @@
                 <label class="checkbox-label">
                     <input type="checkbox" id="chk_save"/> save
                 </label>
-                <button class="hostButton" id="btn_default" style="margin-left: 10px; padding: 1px 6px; font-size: 10px;" title="Restore default settings">default</button>
+                <button class="hostButton" id="btn_clear" style="margin-left: 6px; padding: 1px 6px; font-size: 10px;" title="Delete all dimensions">clear</button>
+                <button class="hostButton" id="btn_default" style="margin-left: 6px; padding: 1px 6px; font-size: 10px;" title="Restore default settings">default</button>
             </div>
         </div>
 
