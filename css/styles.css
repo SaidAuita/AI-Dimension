@@ -30,14 +30,14 @@ body {
     gap: 15px; /* space between diam, cross, and rad */
 }
 
-.cross-layout {
+.cross-layout, .dir-arrows {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 2px;
 }
 
-.cross-middle {
+.cross-middle, .horizontal-arrows {
     display: flex;
     gap: 4px;
 }
