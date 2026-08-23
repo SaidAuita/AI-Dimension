@@ -1,4 +1,4 @@
-# AI Dimension v1.2
+# AI Dimension v1.3
 
 ![AI Dimension Interface](images/AI%20Dimension.png)
 
@@ -26,8 +26,9 @@ This script was created as a spiritual successor and complete rewrite of the pop
 ### Features
 * Dimensioning width (top / bottom) and height (left / right).
 * Dimensioning the gap between two selected objects.
-* Measuring the radius and diameter of circles.
+* Measuring the radius and diameter of circles in two directions: **Top-Right** and **Bottom-Right**.
 * Marking the center of an object.
+* Robust calculation of bounds for complex groups, nested groups, and clipping masks (`Clip Groups`).
 * Customizable appearance: stroke weight, gap, indent, arrow size, font size, drawing scale, and precision (up to 3 decimal places).
 * Moving all dimensions to a designated separate layer (`layer` option).
 * Option to place dimensions outside the active artboard (`out artboard` option).
@@ -79,8 +80,9 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 ### Функционал
 * Простановка ширины (сверху / снизу) и высоты (слева / справа).
 * Простановка размеров между двумя выбранными объектами.
-* Измерение радиуса и диаметра окружностей.
+* Измерение радиуса и диаметра окружностей в двух направлениях: **вправо/вверх** и **вправо/вниз**.
 * Пометка центра объекта.
+* Корректный и точный расчёт габаритов для сложных групп, вложенных объектов и обтравочных масок (`Clip Groups`).
 * Гибкая настройка: толщина линии (stroke), отступ от объекта (gap), вынос линии (indent), размер стрелки (arrow), размер шрифта, масштаб (scale) и точность округления (до 3 знаков).
 * Вынос всех размеров на отдельный слой (опция `layer`).
 * Возможность выносить размеры за пределы активного артборда (опция `out artboard`).

@@ -18,8 +18,11 @@ const Measurements = (function() {
     async function clearOldMeasurements() {
         if (!currentMeasNames || currentMeasNames.length === 0) return;
         for (let i = 0; i < currentMeasNames.length; i++) {
-            await evalScriptPromise(`delMeasByName('${currentMeasNames[i]}', ${i})`);
+            if (currentMeasNames[i]) {
+                await evalScriptPromise(`delMeasByName('${currentMeasNames[i]}')`);
+            }
         }
+        currentMeasNames = [];
     }
 
     async function runMeasurement(params) {

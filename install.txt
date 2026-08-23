@@ -1,5 +1,5 @@
 ========================================================================
-             AI DIMENSION v1.2 INSTALLATION GUIDE
+             AI DIMENSION v1.3 INSTALLATION GUIDE
 ========================================================================
 [Scroll down for Russian / Инструкция на русском языке ниже]
 
@@ -38,7 +38,7 @@ STEP 3: Launch in Adobe Illustrator
 2. Open: Window -> Extensions -> AI Dimension (or Extensions (Legacy)).
 
 ========================================================================
-           ИНСТРУКЦИЯ ПО УСТАНОВКЕ AI DIMENSION v1.2
+           ИНСТРУКЦИЯ ПО УСТАНОВКЕ AI DIMENSION v1.3
 ========================================================================
 
 Поддерживаются версии Adobe Illustrator CC 2014 – 2026+ на Windows и macOS.

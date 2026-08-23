@@ -11,7 +11,8 @@ var AIMeasurment = (function () {
 
     // --- Helpers ---
     function makeRandStr(len) {
-        return ('1' + (new Date()) * Math.random() * 10000).slice(0, len);
+        var num = Math.floor(1000000 + Math.random() * 9000000);
+        return String(num).slice(0, len || 7);
     }
 
     function parseScale(val) {
@@ -62,79 +63,64 @@ var AIMeasurment = (function () {
     }
 
     // --- Geometry Helpers ---
-    function _compareBounds(elem, boundsToCompare) {
-        var elemBounds = elem.geometricBounds;
-        if (elemBounds[0] < boundsToCompare[0]) boundsToCompare[0] = elemBounds[0];
-        if (elemBounds[1] > boundsToCompare[1]) boundsToCompare[1] = elemBounds[1];
-        if (elemBounds[2] > boundsToCompare[2]) boundsToCompare[2] = elemBounds[2];
-        if (elemBounds[3] < boundsToCompare[3]) boundsToCompare[3] = elemBounds[3];
-        return boundsToCompare;
+    function mergeBounds(b1, b2) {
+        if (!b1) return b2;
+        if (!b2) return b1;
+        return [
+            Math.min(b1[0], b2[0]),
+            Math.max(b1[1], b2[1]),
+            Math.max(b1[2], b2[2]),
+            Math.min(b1[3], b2[3])
+        ];
     }
 
-    function getBounds(selElem, bounds) {
-        var clipGroupElems, i, j;
-        if (selElem.typename !== 'GroupItem') {
-            return selElem.geometricBounds;
-        }
-        if (selElem.clipped) {
-            clipGroupElems = selElem.pathItems;
-            for (i = 0; i < clipGroupElems.length; i++) {
-                if (clipGroupElems[i].clipping) {
-                    if (bounds === '') {
-                        bounds = clipGroupElems[i].geometricBounds;
-                        continue;
-                    }
-                    bounds = _compareBounds(clipGroupElems[i], bounds);
-                }
-            }
-            return bounds;
-        }
+    function getItemBounds(elem) {
+        if (!elem) return null;
 
-        for (j = 0; j < selElem.pageItems.length; j++) {
-            var el = selElem.pageItems[j];
-            if (el.typename !== 'GroupItem') {
-                if (bounds === '') {
-                    bounds = el.geometricBounds;
-                    continue;
-                }
-                bounds = _compareBounds(el, bounds);
-            }
-
-            if (el.typename === 'GroupItem' && el.clipped) {
-                clipGroupElems = el.pathItems;
-                for (i = 0; i < clipGroupElems.length; i++) {
-                    if (clipGroupElems[i].clipping) {
-                        if (bounds === '') {
-                            bounds = clipGroupElems[i].geometricBounds;
-                            continue;
-                        }
-                        bounds = _compareBounds(clipGroupElems[i], bounds);
+        // If clipped group (clipping mask), only clipping paths define visual bounds
+        if (elem.typename === 'GroupItem' && elem.clipped) {
+            var clipBounds = null;
+            for (var i = 0; i < elem.pageItems.length; i++) {
+                var child = elem.pageItems[i];
+                if (child.clipping) {
+                    var cB = getItemBounds(child);
+                    if (cB) {
+                        clipBounds = mergeBounds(clipBounds, cB);
                     }
                 }
-                continue;
             }
-
-            if (el.typename === 'GroupItem' && !el.groupItems && !el.clipped) {
-                if (bounds === '') {
-                    bounds = el.geometricBounds;
-                    continue;
-                }
-                bounds = _compareBounds(el.geometricBounds, bounds);
-                continue;
-            }
-
-            if (el.typename === 'GroupItem' && el.groupItems) {
-                for (var l = 0; l < el.pageItems.length; l++) {
-                    bounds = getBounds(el.pageItems[l], bounds);
-                }
-            }
+            if (clipBounds) return clipBounds;
         }
-        return bounds;
+
+        // If regular group, recursively calculate merged bounds of children
+        if (elem.typename === 'GroupItem' && elem.pageItems && elem.pageItems.length > 0) {
+            var grpBounds = null;
+            for (var j = 0; j < elem.pageItems.length; j++) {
+                var it = elem.pageItems[j];
+                if (it.guides) continue;
+                var itemB = getItemBounds(it);
+                if (itemB) {
+                    grpBounds = mergeBounds(grpBounds, itemB);
+                }
+            }
+            if (grpBounds) return grpBounds;
+        }
+
+        // Leaf item / standard PageItem (PathItem, CompoundPathItem, TextFrame, PlacedItem, RasterItem, etc.)
+        try {
+            var b = elem.geometricBounds;
+            if (b && b.length === 4 && !isNaN(b[0]) && !isNaN(b[1]) && !isNaN(b[2]) && !isNaN(b[3])) {
+                return [b[0], b[1], b[2], b[3]];
+            }
+        } catch (e) {}
+
+        return null;
     }
 
     function getRectByVertGap(sel) {
-        var tp_bnds = getBounds(sel[0], []);
-        var bt_bnds = getBounds(sel[1], []);
+        var tp_bnds = getItemBounds(sel[0]);
+        var bt_bnds = getItemBounds(sel[1]);
+        if (!tp_bnds || !bt_bnds) return false;
         var left, top, right, bottom;
 
         if (tp_bnds[3] > bt_bnds[1]) {
@@ -153,8 +139,9 @@ var AIMeasurment = (function () {
     }
 
     function getRectByHorizGap(sel) {
-        var tp_bnds = getBounds(sel[0], []);
-        var bt_bnds = getBounds(sel[1], []);
+        var tp_bnds = getItemBounds(sel[0]);
+        var bt_bnds = getItemBounds(sel[1]);
+        if (!tp_bnds || !bt_bnds) return false;
         var left, top, right, bottom;
 
         if (tp_bnds[2] < bt_bnds[0]) {
@@ -174,17 +161,17 @@ var AIMeasurment = (function () {
 
     function isCircle(elem) {
         try {
+            if (!elem || elem.typename !== 'PathItem') return false;
             var elW = elem.width;
             var elH = elem.height;
-            var difBox = 0;
-            if (elW > elH) {
-                difBox = 100 * (1 - elH / elW);
-            } else if (elW < elH) {
-                difBox = 100 * (1 - elW / elH);
-            }
+            if (elW <= 0 || elH <= 0) return false;
+            var difBox = Math.abs(elW - elH) / Math.max(elW, elH) * 100;
             if (difBox > 2) return false;
 
-            var difS = Math.abs(Math.pow((elW / 2), 2) * Math.PI * 100 / Math.abs(elem.area) - 100);
+            var expectedArea = Math.PI * Math.pow(elW / 2, 2);
+            var actualArea = Math.abs(elem.area);
+            if (actualArea <= 0) return false;
+            var difS = Math.abs(expectedArea - actualArea) / expectedArea * 100;
             if (difS > 2) return false;
 
             return true;
@@ -217,7 +204,8 @@ var AIMeasurment = (function () {
         var bounds, left, right, top, bott, elW, elH, rect;
 
         if (iterator !== -1) {
-            bounds = getBounds(selection[iterator], []);
+            bounds = getItemBounds(selection[iterator]);
+            if (!bounds) return null;
             left = bounds[0];
             right = bounds[2];
             top = bounds[1];
@@ -235,7 +223,7 @@ var AIMeasurment = (function () {
                     rect = getRectByVertGap(selection);
                     break;
             }
-            if (rect === false) return;
+            if (rect === false || !rect) return null;
             left = rect[0];
             top = rect[1];
             right = rect[2];
@@ -435,8 +423,13 @@ var AIMeasurment = (function () {
                 meas.remove();
                 return;
             }
+            var isBr = (side === 'br' || side === 'bott');
             var xr = left + elW / 2 + (elW / 2) / Math.sqrt(2);
-            var yr = top - elH / 2 + (elH / 2) / Math.sqrt(2);
+            var yr = isBr ? 
+                (top - elH / 2 - (elH / 2) / Math.sqrt(2)) : 
+                (top - elH / 2 + (elH / 2) / Math.sqrt(2));
+            var shelfYr = isBr ? (yr - stopTop) : (yr + stopTop);
+
             _addLine([[0, 0], [elW / 2, 0]]);
             if (elW / 2 > (arW + strkW)) {
                 var ar0r = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
@@ -446,19 +439,30 @@ var AIMeasurment = (function () {
             } else {
                 meas.position = [left + elW / 2, top - elH / 2];
             }
-            meas.rotate(45, true, false, false, false, Transformation.LEFT);
-            var lineR_rad = _addLine([[xr, yr], [xr + stopTop, yr + stopTop], [xr + stopTop * 2, yr + stopTop]]);
+
+            if (isBr) {
+                meas.rotate(-45, true, false, false, false, Transformation.LEFT);
+            } else {
+                meas.rotate(45, true, false, false, false, Transformation.LEFT);
+            }
+
+            _addLine([[xr, yr], [xr + stopTop, shelfYr], [xr + stopTop * 2, shelfYr]]);
             txt = meas.textFrames.add();
             txt = _addLabel('R ' + lablR + units);
-            txt.position = [lineR_rad.position[0] + lineR_rad.width + gap, lineR_rad.position[1] + txt.height / 2];
+            txt.position = [xr + stopTop * 2 + gap, shelfYr + txt.height / 2];
 
         } else if (measType === 'diam') {
             if (!isCircle(selection[iterator])) {
                 meas.remove();
                 return;
             }
+            var isBr = (side === 'br' || side === 'bott');
             var xd = left + elW / 2 + (elW / 2) / Math.sqrt(2);
-            var yd = top - elH / 2 + (elH / 2) / Math.sqrt(2);
+            var yd = isBr ? 
+                (top - elH / 2 - (elH / 2) / Math.sqrt(2)) : 
+                (top - elH / 2 + (elH / 2) / Math.sqrt(2));
+            var shelfYd = isBr ? (yd - stopTop) : (yd + stopTop);
+
             _addLine([[0, 0], [elW, 0]]);
             if (elW > (arW + strkW) * 2) {
                 var ar0d = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
@@ -469,11 +473,17 @@ var AIMeasurment = (function () {
             } else {
                 meas.position = [left, top - elH / 2];
             }
-            meas.rotate(45);
-            var lineD = _addLine([[xd, yd], [xd + stopTop, yd + stopTop], [xd + stopTop * 2, yd + stopTop]]);
+
+            if (isBr) {
+                meas.rotate(-45);
+            } else {
+                meas.rotate(45);
+            }
+
+            _addLine([[xd, yd], [xd + stopTop, shelfYd], [xd + stopTop * 2, shelfYd]]);
             txt = meas.textFrames.add();
             txt = _addLabel('\u00d8 ' + lablW + units);
-            txt.position = [lineD.position[0] + lineD.width + gap, lineD.position[1] + txt.height / 2];
+            txt.position = [xd + stopTop * 2 + gap, shelfYd + txt.height / 2];
 
         } else if (measType === 'cent') {
             var N = 9, N_HOR = N, N_VER = N;
@@ -501,33 +511,40 @@ var AIMeasurment = (function () {
     // --- Public API ---
     return {
         run: function(u) {
-            if (!selection || !selection[0]) {
-                return;
-            }
+            if (!app.documents.length) return JSON.stringify([]);
+            var sel = app.activeDocument.selection;
+            if (!sel || !sel.length) return JSON.stringify([]);
+
             var res = [];
-            if (selection.length === 2 && u.ctrl === true) {
-                if ((selection[0].name).match(/\d{7}/) || (selection[1].name).match(/\d{7}/)) return;
-                res[0] = executeMeasure(u, -1);
+            if (sel.length === 2 && u.ctrl === true) {
+                if ((sel[0].name || '').match(/^\d{7}$/) || (sel[1].name || '').match(/^\d{7}$/)) return JSON.stringify([]);
+                var singleName = executeMeasure(u, -1);
+                if (singleName) res.push(singleName);
                 return JSON.stringify(res);
             }
 
-            for (var i = 0; i < selection.length; i++) {
-                if ((selection[i].name).match(/\d{7}/)) continue;
-                res[i] = executeMeasure(u, i);
+            for (var i = 0; i < sel.length; i++) {
+                if ((sel[i].name || '').match(/^\d{7}$/)) continue;
+                var measName = executeMeasure(u, i);
+                if (measName) {
+                    res.push(measName);
+                }
             }
             return JSON.stringify(res);
         },
 
         deleteByName: function(name) {
+            if (!name || !app.documents.length) return false;
             try {
-                var el = activeDocument.groupItems.getByName(name);
-                if (selection && selection[0]) {
+                var el = app.activeDocument.groupItems.getByName(name);
+                if (el) {
                     el.remove();
                     return true;
                 }
             } catch (e) {
                 return false;
             }
+            return false;
         },
 
         deleteAll: function() {
