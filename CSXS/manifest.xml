@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ExtensionManifest
         Version="7.0"
-        ExtensionBundleId="com.aidimension.v110"
+        ExtensionBundleId="com.aidimension.panel"
         ExtensionBundleVersion="1.3.0"
         ExtensionBundleName="AI Dimension"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -21,7 +21,7 @@
     </Abstract>
 
     <ExtensionList>
-        <Extension Id="com.aidimension.v110" Version="1.3.0"/>
+        <Extension Id="com.aidimension.panel" Version="1.3.0"/>
     </ExtensionList>
 
     <ExecutionEnvironment>
@@ -37,7 +37,7 @@
     </ExecutionEnvironment>
 
     <DispatchInfoList>
-        <Extension Id="com.aidimension.v110">
+        <Extension Id="com.aidimension.panel">
             <DispatchInfo>
                 <Resources>
                     <MainPath>./index.html</MainPath>
