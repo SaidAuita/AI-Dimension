@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <link id="hostStyle" rel="stylesheet" href="css/styles.css"/>
-    <title>AI Dimension v1.3</title>
+    <title>AI Dimension v1.4</title>
 </head>
 <body class="hostElt">
 
@@ -11,15 +11,35 @@
 
     <!-- MEASUREMENT BUTTONS -->
     <div class="measurements-block">
-        <div class="col-buttons">
-            <button id="btn_diam" class="hostButton icon-btn" title="Diameter (Top-Right)">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"/><path d="M6 18l12-12"/></svg>
-            </button>
-            <button id="btn_diam_br" class="hostButton icon-btn" title="Diameter (Bottom-Right)">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"/><path d="M6 6l12 12"/></svg>
-            </button>
+        <!-- LEFT: GAP H (TOP/BOTT) + DIAMETER 2x2 -->
+        <div class="quad-grid" title="Horizontal Gap & Diameter (Ø)">
+            <div class="quad-row">
+                <button id="btn_gap_top" class="hostButton icon-btn" title="Horizontal Gap (Top dimension)">
+                    <svg viewBox="0 0 24 24"><path d="M4 6v14M20 6v14M4 8h16M7 5l-3 3 3 3M17 5l3 3-3 3"/></svg>
+                </button>
+                <button id="btn_gap_bott" class="hostButton icon-btn" title="Horizontal Gap (Bottom dimension)">
+                    <svg viewBox="0 0 24 24"><path d="M4 4v14M20 4v14M4 16h16M7 13l-3 3 3 3M17 13l3 3-3 3"/></svg>
+                </button>
+            </div>
+            <div class="quad-row">
+                <button id="btn_diam_tl" class="hostButton icon-btn" title="Diameter Top-Left (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="13" cy="13" r="5"/><path d="M17 17L9 9H3"/></svg>
+                </button>
+                <button id="btn_diam" class="hostButton icon-btn" title="Diameter Top-Right (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="13" r="5"/><path d="M7 17L15 9H21"/></svg>
+                </button>
+            </div>
+            <div class="quad-row">
+                <button id="btn_diam_bl" class="hostButton icon-btn" title="Diameter Bottom-Left (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="13" cy="11" r="5"/><path d="M17 7L9 15H3"/></svg>
+                </button>
+                <button id="btn_diam_br" class="hostButton icon-btn" title="Diameter Bottom-Right (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="5"/><path d="M7 7L15 15H21"/></svg>
+                </button>
+            </div>
         </div>
 
+        <!-- CENTER: CROSS -->
         <div class="cross-layout">
             <button id="btn_top" class="hostButton icon-btn" title="Top Dimension (Ctrl for 2 objects)">
                 <svg viewBox="0 0 24 24"><path d="M12 4v16m-4-12l4-4 4 4"/></svg>
@@ -40,13 +60,32 @@
             </button>
         </div>
         
-        <div class="col-buttons">
-            <button id="btn_rad" class="hostButton icon-btn" title="Radius (Top-Right)">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"/><path d="M12 12l6-6"/></svg>
-            </button>
-            <button id="btn_rad_br" class="hostButton icon-btn" title="Radius (Bottom-Right)">
-                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor"/><path d="M12 12l6 6"/></svg>
-            </button>
+        <!-- RIGHT: GAP V (LEFT/RIGHT) + RADIUS 2x2 -->
+        <div class="quad-grid" title="Vertical Gap & Radius (R)">
+            <div class="quad-row">
+                <button id="btn_gap_left" class="hostButton icon-btn" title="Vertical Gap (Left dimension)">
+                    <svg viewBox="0 0 24 24"><path d="M6 4h14M6 20h14M8 4v16M5 7l3-3 3 3M5 17l3 3 3-3"/></svg>
+                </button>
+                <button id="btn_gap_right" class="hostButton icon-btn" title="Vertical Gap (Right dimension)">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h14M4 20h14M16 4v16M13 7l3-3 3 3M13 17l3 3 3-3"/></svg>
+                </button>
+            </div>
+            <div class="quad-row">
+                <button id="btn_rad_tl" class="hostButton icon-btn" title="Radius Top-Left (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="14" cy="14" r="6"/><path d="M14 14L9 9H3"/></svg>
+                </button>
+                <button id="btn_rad" class="hostButton icon-btn" title="Radius Top-Right (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="10" cy="14" r="6"/><path d="M10 14L15 9H21"/></svg>
+                </button>
+            </div>
+            <div class="quad-row">
+                <button id="btn_rad_bl" class="hostButton icon-btn" title="Radius Bottom-Left (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="14" cy="10" r="6"/><path d="M14 10L9 15H3"/></svg>
+                </button>
+                <button id="btn_rad_br" class="hostButton icon-btn" title="Radius Bottom-Right (with shelf)">
+                    <svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M10 10L15 15H21"/></svg>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -54,7 +93,7 @@
     <div class="settings-block">
         
         <div class="row">
-            <label class="checkbox-label"><input type="checkbox" id="add_mm"/> unit</label>
+            <label class="checkbox-label" title="Append unit suffix to dimension text (e.g. 120 mm)"><input type="checkbox" id="add_mm"/> unit</label>
             <label class="prop-label" style="width: auto; margin-left: 4px; margin-right: 2px;">scale:</label>
             <input type="text" id="scale_ratio" class="hostInput" value="1:1" style="width: 36px; text-align: center;" title="Scale ratio (e.g., 1:1, 1:10, 1:50, or multiplier like 10)"/>
             <label class="checkbox-label" style="margin-left: 4px;"><input type="checkbox" id="add_layer"/> layer:</label>
@@ -98,6 +137,17 @@
                 <option value="pt">pt</option>
                 <option value="px">px</option>
             </select>
+        </div>
+
+        <div class="row font-picker-row" style="position: relative;">
+            <label class="prop-label">font:</label>
+            <div class="font-picker-wrapper" style="flex: 1; position: relative;">
+                <input type="text" id="font_search_input" class="hostInput text-input font-input" value="Default (Myriad Pro)" placeholder="Search font..." autocomplete="off" spellcheck="false" title="Click to select or type to search all installed fonts" />
+                <input type="hidden" id="font_name" value="default" />
+                <div id="font_dropdown" class="font-dropdown hidden">
+                    <div id="font_list" class="font-list-container"></div>
+                </div>
+            </div>
         </div>
 
         <div class="row">
@@ -156,6 +206,7 @@
 <script src="js/colors.js"></script>
 <script src="js/presets.js"></script>
 <script src="js/measurements.js"></script>
+<script src="js/fontPicker.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/main.js"></script>
 

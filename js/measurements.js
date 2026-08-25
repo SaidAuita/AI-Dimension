@@ -51,6 +51,8 @@ const Measurements = (function() {
         const outArtboardEl = document.getElementById('out_artboard');
         const outArtboard = outArtboardEl ? outArtboardEl.checked : false;
 
+        const fontName = document.getElementById('font_name') ? document.getElementById('font_name').value : 'default';
+
         const opts = {
             measType: params.type,
             side: params.side || '',
@@ -68,18 +70,13 @@ const Measurements = (function() {
             scale: scaleVal,
             addLay: addLay,
             layName: layName,
+            fontName: fontName,
             fontNum: 0,
             outArtboard: outArtboard
         };
 
-        // If linear measurement, delete old overlapping dimensions first
-        if (params.type === 'linear') {
-            await clearOldMeasurements();
-        } else {
-            // For diam/rad/cent, old implementation also deleted prior elements if they were re-applied, 
-            // but the logic varied. To perfectly mimic 3.4 we just delete all currently tracked.
-            await clearOldMeasurements();
-        }
+        // If linear or gap measurement, delete old overlapping dimensions first
+        await clearOldMeasurements();
 
         const script = `measAllSelect(${JSON.stringify(opts)})`;
         const result = await evalScriptPromise(script);
@@ -93,6 +90,11 @@ const Measurements = (function() {
         }
     }
 
+    async function deleteAllMeasurements() {
+        await evalScriptPromise('delAllMeasurements()');
+        currentMeasNames = [];
+    }
+
     function reRunMeasurement() {
         if (lastParams && currentMeasNames && currentMeasNames.length > 0) {
             runMeasurement(lastParams);
@@ -101,6 +103,7 @@ const Measurements = (function() {
 
     return {
         runMeasurement,
-        reRunMeasurement
+        reRunMeasurement,
+        deleteAllMeasurements
     };
 })();

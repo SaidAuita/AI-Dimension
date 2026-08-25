@@ -27,14 +27,25 @@ body {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 15px; /* space between diam, cross, and rad */
+    gap: 8px;
+}
+
+.quad-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.quad-row {
+    display: flex;
+    gap: 3px;
 }
 
 .col-buttons {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
 }
 
 .cross-layout, .dir-arrows {
@@ -46,7 +57,13 @@ body {
 
 .cross-middle, .horizontal-arrows {
     display: flex;
-    gap: 4px;
+    gap: 3px;
+}
+
+.gap-btn-top {
+    width: 100%;
+    height: 25px;
+    padding: 0;
 }
 
 /* Hide number input spinners */
@@ -60,8 +77,8 @@ input[type=number] {
 }
 
 .icon-btn {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
     padding: 0;
 }
 
@@ -127,6 +144,79 @@ input[type=number] {
 
 .cmyk-input {
     width: 35px; /* Slightly wider so 100 fits comfortably */
+}
+
+/* Font Picker Component */
+.font-picker-wrapper {
+    display: flex;
+    position: relative;
+    width: 100%;
+}
+
+.font-input {
+    width: 100%;
+    cursor: pointer;
+    text-overflow: ellipsis;
+}
+
+.font-dropdown {
+    position: absolute;
+    top: 22px;
+    left: 0;
+    right: 0;
+    max-height: 180px;
+    overflow-y: auto;
+    background: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid rgba(128, 128, 128, 0.5);
+    border-radius: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    font-size: 10.5px;
+}
+
+.font-dropdown.hidden {
+    display: none;
+}
+
+.font-header-item {
+    padding: 3px 6px;
+    font-size: 9px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #a0a0a0;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+.font-item {
+    padding: 3px 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.08);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.font-item:hover, .font-item.active-item {
+    background: #2680eb;
+    color: #ffffff;
+}
+
+.font-item-style {
+    font-size: 9px;
+    opacity: 0.7;
+    margin-left: 6px;
+}
+
+.font-item-empty {
+    padding: 8px 6px;
+    text-align: center;
+    color: #888;
+    font-style: italic;
 }
 
 /* Buttons */

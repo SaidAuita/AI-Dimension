@@ -36,30 +36,53 @@ var AIMeasurment = (function () {
 
     function setCmyk(comp) {
         var col = new CMYKColor();
-        col.cyan = comp[0];
-        col.magenta = comp[1];
-        col.yellow = comp[2];
-        col.black = comp[3];
+        var c = (comp && !isNaN(comp[0])) ? Number(comp[0]) : 0;
+        var m = (comp && !isNaN(comp[1])) ? Number(comp[1]) : 0;
+        var y = (comp && !isNaN(comp[2])) ? Number(comp[2]) : 0;
+        var k = (comp && !isNaN(comp[3])) ? Number(comp[3]) : 100;
+        col.cyan = c;
+        col.magenta = m;
+        col.yellow = y;
+        col.black = k;
         return col;
     }
 
-    function getFontsAvailable() {
-        var fonts = [];
-        var fontNamesArray = [
-            'MyriadPro-BoldCond', 'MyriadPro-Black', 'MyriadPro-Bold', 'MyriadPro-Regular',
-            'MyriadPro-Cond', 'Monaco-Bold',
-            'Arial-Bold', 'Arial-BoldMT', 'Arial-Black',
-            'ComicSansMS-Bold', 'Calibri-Bold', 'CourierNewPS-BoldMT', 'Courier-Bold',
-            'Charcoal', 'DejaVuSans-Bold', 'Geneva-Bold', 'Impact',
-            'Nimbus-Sans-Bold', 'NimbusMonoL-Bold', 'TrebuchetMS-Bold', 'Tahoma-Bold',
-            'Verdana-Bold'
-        ];
-        for (var i = 0; i < fontNamesArray.length; i++) {
-            try {
-                fonts.push(textFonts.getByName(fontNamesArray[i]).name);
-            } catch (e) {}
+    function applyFontToTextRange(textRange, fontParam) {
+        if (!textRange) return;
+        var fontCollection = (typeof app !== 'undefined' && app.textFonts) ? app.textFonts : (typeof textFonts !== 'undefined' ? textFonts : null);
+        if (!fontCollection) return;
+
+        if (!fontParam || fontParam === 'default' || fontParam === '') {
+            var defs = ['MyriadPro-BoldCond', 'MyriadPro-Regular', 'Arial-BoldMT', 'Arial-Bold', 'ArialMT', 'Helvetica'];
+            for (var d = 0; d < defs.length; d++) {
+                try {
+                    textRange.characterAttributes.textFont = fontCollection.getByName(defs[d]);
+                    return;
+                } catch(eD) {}
+            }
+            return;
         }
-        return fonts;
+        try {
+            textRange.characterAttributes.textFont = fontCollection.getByName(fontParam);
+            return;
+        } catch(e1) {}
+        try {
+            var len = fontCollection.length;
+            for (var f = 0; f < len; f++) {
+                var tf = fontCollection[f];
+                if (tf.name === fontParam || tf.family === fontParam) {
+                    textRange.characterAttributes.textFont = tf;
+                    return;
+                }
+            }
+        } catch(e2) {}
+    }
+
+    function formatNumber(num, dec) {
+        if (isNaN(num) || !isFinite(num)) return "0";
+        var d = parseInt(dec, 10);
+        if (isNaN(d) || d < 0) d = 0;
+        return Number(num.toFixed(d)).toFixed(d);
     }
 
     // --- Geometry Helpers ---
@@ -118,44 +141,63 @@ var AIMeasurment = (function () {
     }
 
     function getRectByVertGap(sel) {
-        var tp_bnds = getItemBounds(sel[0]);
-        var bt_bnds = getItemBounds(sel[1]);
-        if (!tp_bnds || !bt_bnds) return false;
-        var left, top, right, bottom;
+        if (!sel || sel.length < 2) return null;
+        var b1 = getItemBounds(sel[0]);
+        var b2 = getItemBounds(sel[1]);
+        if (!b1 || !b2) return null;
 
-        if (tp_bnds[3] > bt_bnds[1]) {
-            top = tp_bnds[3];
-            bottom = bt_bnds[1];
-        } else if (bt_bnds[3] > tp_bnds[1]) {
-            top = bt_bnds[3];
-            bottom = tp_bnds[1];
-        } else {
-            return false;
+        // In Illustrator, top Y is greater than bottom Y (top > bottom)
+        var topObj = (b1[1] >= b2[1]) ? b1 : b2;
+        var botObj = (b1[1] >= b2[1]) ? b2 : b1;
+
+        var top = topObj[3];    // bottom edge of upper object
+        var bottom = botObj[1]; // top edge of lower object
+
+        if (top <= bottom) {
+            top = Math.max(topObj[3], botObj[1]);
+            bottom = Math.min(topObj[3], botObj[1]);
+            if (top === bottom) top = bottom + 1;
         }
 
-        left = tp_bnds[0] <= bt_bnds[0] ? tp_bnds[0] : bt_bnds[0];
-        right = tp_bnds[2] >= bt_bnds[2] ? tp_bnds[2] : bt_bnds[2];
+        var left = Math.min(b1[0], b2[0]);
+        var right = Math.max(b1[2], b2[2]);
+        var overlapLeft = Math.max(b1[0], b2[0]);
+        var overlapRight = Math.min(b1[2], b2[2]);
+        if (overlapRight > overlapLeft) {
+            left = overlapLeft;
+            right = overlapRight;
+        }
+
         return [left, top, right, bottom];
     }
 
     function getRectByHorizGap(sel) {
-        var tp_bnds = getItemBounds(sel[0]);
-        var bt_bnds = getItemBounds(sel[1]);
-        if (!tp_bnds || !bt_bnds) return false;
-        var left, top, right, bottom;
+        if (!sel || sel.length < 2) return null;
+        var b1 = getItemBounds(sel[0]);
+        var b2 = getItemBounds(sel[1]);
+        if (!b1 || !b2) return null;
 
-        if (tp_bnds[2] < bt_bnds[0]) {
-            left = tp_bnds[2];
-            right = bt_bnds[0];
-        } else if (bt_bnds[2] < tp_bnds[0]) {
-            left = bt_bnds[2];
-            right = tp_bnds[0];
-        } else {
-            return false;
+        var leftObj = (b1[0] <= b2[0]) ? b1 : b2;
+        var rightObj = (b1[0] <= b2[0]) ? b2 : b1;
+
+        var left = leftObj[2];   // right edge of leftmost object
+        var right = rightObj[0];  // left edge of rightmost object
+
+        if (right <= left) {
+            left = Math.min(leftObj[2], rightObj[0]);
+            right = Math.max(leftObj[2], rightObj[0]);
+            if (right === left) right = left + 1;
         }
 
-        top = tp_bnds[1] >= bt_bnds[1] ? tp_bnds[1] : bt_bnds[1];
-        bottom = tp_bnds[3] <= bt_bnds[3] ? tp_bnds[3] : bt_bnds[3];
+        var top = Math.max(b1[1], b2[1]);
+        var bottom = Math.min(b1[3], b2[3]);
+        var overlapTop = Math.min(b1[1], b2[1]);
+        var overlapBot = Math.max(b1[3], b2[3]);
+        if (overlapTop > overlapBot) {
+            top = overlapTop;
+            bottom = overlapBot;
+        }
+
         return [left, top, right, bottom];
     }
 
@@ -183,7 +225,7 @@ var AIMeasurment = (function () {
 
     // --- Core Measurement Execution ---
     function executeMeasure(u, iterator) {
-        var side = u.side;
+        var side = u.side || 'top';
         var strkW = u.strkW;
         var units = u.units ? ' ' + u.units : '';
         var arW = u.arW;
@@ -191,7 +233,7 @@ var AIMeasurment = (function () {
         var stopBot = u.stopBot;
         var stopTop = u.stopTop + 1;
         var fontSize = u.fontSize;
-        var precis = u.precis;
+        var precis = (u.precis !== undefined) ? u.precis : 2;
         var measType = u.measType;
         var addLay = u.addLay;
         var layName = u.layName;
@@ -199,7 +241,6 @@ var AIMeasurment = (function () {
 
         var arH = arW / 1.9;
         var col = setCmyk(u.colComp);
-        var fontName = getFontsAvailable()[u.fontNum || 0];
 
         var bounds, left, right, top, bott, elW, elH, rect;
 
@@ -212,18 +253,18 @@ var AIMeasurment = (function () {
             bott = bounds[3];
             elW = right - left;
             elH = top - bott;
-        } else if (measType === 'linear') {
-            switch (side) {
-                case 'top':
-                case 'bott':
-                    rect = getRectByHorizGap(selection);
-                    break;
-                case 'left':
-                case 'right':
-                    rect = getRectByVertGap(selection);
-                    break;
-            }
-            if (rect === false || !rect) return null;
+        } else if (measType === 'gap_h' || (measType === 'linear' && (side === 'top' || side === 'bott'))) {
+            rect = getRectByHorizGap(selection);
+            if (!rect) return null;
+            left = rect[0];
+            top = rect[1];
+            right = rect[2];
+            bott = rect[3];
+            elW = right - left;
+            elH = top - bott;
+        } else if (measType === 'gap_v' || (measType === 'linear' && (side === 'left' || side === 'right'))) {
+            rect = getRectByVertGap(selection);
+            if (!rect) return null;
             left = rect[0];
             top = rect[1];
             right = rect[2];
@@ -232,7 +273,10 @@ var AIMeasurment = (function () {
             elH = top - bott;
         }
 
-        if (outArtboard && activeDocument && activeDocument.artboards && activeDocument.artboards.length > 0 && measType === 'linear') {
+        if (isNaN(elW) || !isFinite(elW) || elW <= 0) elW = 0.001;
+        if (isNaN(elH) || !isFinite(elH) || elH <= 0) elH = 0.001;
+
+        if (outArtboard && activeDocument && activeDocument.artboards && activeDocument.artboards.length > 0 && (measType === 'linear' || measType === 'gap_h' || measType === 'gap_v')) {
             var abIdx = activeDocument.artboards.getActiveArtboardIndex();
             var abRect = activeDocument.artboards[abIdx].artboardRect;
             switch (side) {
@@ -243,7 +287,6 @@ var AIMeasurment = (function () {
             }
         }
 
-        var p = Math.pow(10, precis);
         var unitType = u.unitType || 'mm';
         var unitScale = 2.834645668;
         if (unitType === 'cm') unitScale = 28.34645668;
@@ -252,9 +295,13 @@ var AIMeasurment = (function () {
 
         var scaleVal = (u.scale !== undefined) ? parseScale(u.scale) : 1;
 
-        var lablW = Math.round((elW * scaleVal) / (unitScale / p)) / p;
-        var lablH = Math.round((elH * scaleVal) / (unitScale / p)) / p;
-        var lablR = Math.round(((elW * scaleVal) / 2) / (unitScale / p)) / p;
+        var valW = (elW * scaleVal) / unitScale;
+        var valH = (elH * scaleVal) / unitScale;
+        var valR = ((elW * scaleVal) / 2) / unitScale;
+
+        var lablW = formatNumber(valW, precis);
+        var lablH = formatNumber(valH, precis);
+        var lablR = formatNumber(valR, precis);
 
         var lay, meas, txt;
 
@@ -265,7 +312,7 @@ var AIMeasurment = (function () {
                     lay = activeDocument.layers.add();
                     lay.name = layName;
                 } else {
-                    lay = (iterator !== -1) ? selection[iterator].layer : activeDocument.activeLayer;
+                    lay = (iterator !== -1 && selection[iterator]) ? selection[iterator].layer : activeDocument.activeLayer;
                 }
             }
         } catch (e) {
@@ -273,7 +320,7 @@ var AIMeasurment = (function () {
                 lay = activeDocument.layers.add();
                 lay.name = layName;
             } else {
-                lay = (iterator !== -1) ? selection[iterator].layer : activeDocument.activeLayer;
+                lay = (iterator !== -1 && selection[iterator]) ? selection[iterator].layer : activeDocument.activeLayer;
             }
         }
 
@@ -318,17 +365,19 @@ var AIMeasurment = (function () {
             labl.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
             if (col) {
                 labl.textRange.characterAttributes.fillColor = col;
-                if (fontName) labl.textRange.characterAttributes.textFont = textFonts.getByName(fontName);
             }
+            applyFontToTextRange(labl.textRange, u.fontName);
             labl.textRange.characterAttributes.size = fontSize;
             return labl;
         }
 
         function _addBaseMeas(sideLength) {
             var linePoints, stopPoints, arPoints, lineL, lineR, stopL, stopR, arL, arR;
+            var midY = stopTop - txt.height / 2;
+
             if (txt.width < (sideLength - gap * 2 - arW * 3)) {
                 txt.position = [sideLength / 2 - txt.width / 2, stopTop];
-                linePoints = [[0, stopTop - txt.height / 2], [sideLength / 2 - txt.width / 2 - gap / 2, stopTop - txt.height / 2]];
+                linePoints = [[0, midY], [sideLength / 2 - txt.width / 2 - gap / 2, midY]];
                 lineL = _addLine(linePoints);
                 lineR = lineL.duplicate();
                 lineR.translate(lineL.width + txt.width + gap);
@@ -338,29 +387,29 @@ var AIMeasurment = (function () {
                 stopR = stopL.duplicate();
                 stopR.translate(sideLength);
 
-                arPoints = [[arW, stopTop - txt.height / 2 - arH / 2], [0, stopTop - txt.height / 2], [arW, stopTop - txt.height / 2 + arH / 2]];
+                arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
                 arL = _addArrow(arPoints);
                 arR = arL.duplicate();
                 arR.rotate(180);
                 arR.translate(sideLength - arW);
 
             } else {
-                if (txt.width < sideLength - arW) {
-                    txt.position = [sideLength / 2 - txt.width / 2, stopTop];
-                } else {
-                    txt.position = [sideLength + arW * 2 + gap, stopTop];
-                }
-                linePoints = [[0, stopTop - txt.height / 2], [-arW * 2, stopTop - txt.height / 2]];
-                lineL = _addLine(linePoints);
-                lineR = lineL.duplicate();
-                lineR.translate(lineL.width + sideLength);
-
                 stopPoints = [[0, stopBot], [0, stopTop]];
                 stopL = _addLine(stopPoints);
                 stopR = stopL.duplicate();
                 stopR.translate(sideLength);
 
-                arPoints = [[arW, stopTop - txt.height / 2 - arH / 2], [0, stopTop - txt.height / 2], [arW, stopTop - txt.height / 2 + arH / 2]];
+                if (txt.width < sideLength - arW) {
+                    txt.position = [sideLength / 2 - txt.width / 2, stopTop];
+                    lineL = _addLine([[-arW * 2, midY], [sideLength / 2 - txt.width / 2 - gap / 2, midY]]);
+                    lineR = _addLine([[sideLength / 2 + txt.width / 2 + gap / 2, midY], [sideLength + arW * 2, midY]]);
+                } else {
+                    txt.position = [sideLength + arW * 2 + gap, stopTop];
+                    // Continuous dimension line between extension lines plus outside tails
+                    _addLine([[-arW * 2, midY], [sideLength + arW * 2, midY]]);
+                }
+
+                arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
                 arL = _addArrow(arPoints);
                 arR = arL.duplicate();
                 arR.translate(sideLength);
@@ -370,8 +419,12 @@ var AIMeasurment = (function () {
         }
 
         // --- Execution Branches ---
-        if (measType === 'linear') {
-            switch (side) {
+        if (measType === 'linear' || measType === 'gap_h' || measType === 'gap_v') {
+            var activeSide = side;
+            if (measType === 'gap_h' && !activeSide) activeSide = 'top';
+            if (measType === 'gap_v' && !activeSide) activeSide = 'left';
+
+            switch (activeSide) {
                 case 'top':
                     txt = _addLabel(lablW + units);
                     meas = _addBaseMeas(elW);
@@ -423,45 +476,60 @@ var AIMeasurment = (function () {
                 meas.remove();
                 return;
             }
-            var isBr = (side === 'br' || side === 'bott');
-            var xr = left + elW / 2 + (elW / 2) / Math.sqrt(2);
-            var yr = isBr ? 
-                (top - elH / 2 - (elH / 2) / Math.sqrt(2)) : 
-                (top - elH / 2 + (elH / 2) / Math.sqrt(2));
-            var shelfYr = isBr ? (yr - stopTop) : (yr + stopTop);
+            var isLeft = (side === 'tl' || side === 'bl' || side === 'left');
+            var isBottom = (side === 'br' || side === 'bl' || side === 'bott');
+
+            var cx = left + elW / 2;
+            var cy = top - elH / 2;
+            var offset = (elW / 2) / Math.sqrt(2);
+
+            var xr = isLeft ? (cx - offset) : (cx + offset);
+            var yr = isBottom ? (cy - offset) : (cy + offset);
+            var shelfYr = isBottom ? (yr - stopTop) : (yr + stopTop);
+            var shelfEndXr = isLeft ? (xr - stopTop * 2) : (xr + stopTop * 2);
 
             _addLine([[0, 0], [elW / 2, 0]]);
             if (elW / 2 > (arW + strkW)) {
                 var ar0r = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
                 ar0r.rotate(180);
                 ar0r.translate(elW / 2 - arW);
-                meas.position = [left + elW / 2, top - elH / 2 + arH / 2];
+                meas.position = [cx, cy + arH / 2];
             } else {
-                meas.position = [left + elW / 2, top - elH / 2];
+                meas.position = [cx, cy];
             }
 
-            if (isBr) {
-                meas.rotate(-45, true, false, false, false, Transformation.LEFT);
-            } else {
-                meas.rotate(45, true, false, false, false, Transformation.LEFT);
-            }
+            var rotAngle = 45;
+            if (isLeft && !isBottom) rotAngle = 135;
+            else if (isLeft && isBottom) rotAngle = -135;
+            else if (!isLeft && isBottom) rotAngle = -45;
 
-            _addLine([[xr, yr], [xr + stopTop, shelfYr], [xr + stopTop * 2, shelfYr]]);
+            meas.rotate(rotAngle, true, false, false, false, Transformation.LEFT);
+
+            _addLine([[xr, yr], [isLeft ? xr - stopTop : xr + stopTop, shelfYr], [shelfEndXr, shelfYr]]);
             txt = meas.textFrames.add();
             txt = _addLabel('R ' + lablR + units);
-            txt.position = [xr + stopTop * 2 + gap, shelfYr + txt.height / 2];
+            if (isLeft) {
+                txt.position = [shelfEndXr - gap - txt.width, shelfYr + txt.height / 2];
+            } else {
+                txt.position = [shelfEndXr + gap, shelfYr + txt.height / 2];
+            }
 
         } else if (measType === 'diam') {
             if (!isCircle(selection[iterator])) {
                 meas.remove();
                 return;
             }
-            var isBr = (side === 'br' || side === 'bott');
-            var xd = left + elW / 2 + (elW / 2) / Math.sqrt(2);
-            var yd = isBr ? 
-                (top - elH / 2 - (elH / 2) / Math.sqrt(2)) : 
-                (top - elH / 2 + (elH / 2) / Math.sqrt(2));
-            var shelfYd = isBr ? (yd - stopTop) : (yd + stopTop);
+            var isLeft = (side === 'tl' || side === 'bl' || side === 'left');
+            var isBottom = (side === 'br' || side === 'bl' || side === 'bott');
+
+            var cx = left + elW / 2;
+            var cy = top - elH / 2;
+            var offset = (elW / 2) / Math.sqrt(2);
+
+            var xd = isLeft ? (cx - offset) : (cx + offset);
+            var yd = isBottom ? (cy - offset) : (cy + offset);
+            var shelfYd = isBottom ? (yd - stopTop) : (yd + stopTop);
+            var shelfEndXd = isLeft ? (xd - stopTop * 2) : (xd + stopTop * 2);
 
             _addLine([[0, 0], [elW, 0]]);
             if (elW > (arW + strkW) * 2) {
@@ -469,21 +537,26 @@ var AIMeasurment = (function () {
                 var ar1d = ar0d.duplicate();
                 ar1d.rotate(180);
                 ar1d.translate(elW - arW);
-                meas.position = [left, top - elH / 2 + arH / 2];
+                meas.position = [left, cy + arH / 2];
             } else {
-                meas.position = [left, top - elH / 2];
+                meas.position = [left, cy];
             }
 
-            if (isBr) {
-                meas.rotate(-45);
-            } else {
-                meas.rotate(45);
-            }
+            var rotAngle = 45;
+            if (isLeft && !isBottom) rotAngle = 135;
+            else if (isLeft && isBottom) rotAngle = -135;
+            else if (!isLeft && isBottom) rotAngle = -45;
 
-            _addLine([[xd, yd], [xd + stopTop, shelfYd], [xd + stopTop * 2, shelfYd]]);
+            meas.rotate(rotAngle);
+
+            _addLine([[xd, yd], [isLeft ? xd - stopTop : xd + stopTop, shelfYd], [shelfEndXd, shelfYd]]);
             txt = meas.textFrames.add();
             txt = _addLabel('\u00d8 ' + lablW + units);
-            txt.position = [xd + stopTop * 2 + gap, shelfYd + txt.height / 2];
+            if (isLeft) {
+                txt.position = [shelfEndXd - gap - txt.width, shelfYd + txt.height / 2];
+            } else {
+                txt.position = [shelfEndXd + gap, shelfYd + txt.height / 2];
+            }
 
         } else if (measType === 'cent') {
             var N = 9, N_HOR = N, N_VER = N;
@@ -516,13 +589,17 @@ var AIMeasurment = (function () {
             if (!sel || !sel.length) return JSON.stringify([]);
 
             var res = [];
-            if (sel.length === 2 && u.ctrl === true) {
-                if ((sel[0].name || '').match(/^\d{7}$/) || (sel[1].name || '').match(/^\d{7}$/)) return JSON.stringify([]);
-                var singleName = executeMeasure(u, -1);
-                if (singleName) res.push(singleName);
-                return JSON.stringify(res);
+
+            // Dedicated Gap modes (gap_h, gap_v) or Ctrl+Click on 2 objects
+            if ((u.measType === 'gap_h' || u.measType === 'gap_v') || (sel.length === 2 && u.ctrl === true)) {
+                if (sel.length >= 2) {
+                    var singleName = executeMeasure(u, -1);
+                    if (singleName) res.push(singleName);
+                    return JSON.stringify(res);
+                }
             }
 
+            // Normal per-object measurement (1 or more selected objects)
             for (var i = 0; i < sel.length; i++) {
                 if ((sel[i].name || '').match(/^\d{7}$/)) continue;
                 var measName = executeMeasure(u, i);
@@ -563,6 +640,31 @@ var AIMeasurment = (function () {
                 }
             } catch (e) {}
             return count;
+        },
+
+        getAllFonts: function() {
+            var lines = [];
+            try {
+                var fontCollection = (typeof app !== 'undefined' && app.textFonts) ? app.textFonts : (typeof textFonts !== 'undefined' ? textFonts : null);
+                if (fontCollection) {
+                    var len = fontCollection.length;
+                    for (var i = 0; i < len; i++) {
+                        try {
+                            var f = fontCollection[i];
+                            var postscriptName = '';
+                            var familyName = '';
+                            var styleName = '';
+                            try { postscriptName = f.name || ''; } catch(e1) {}
+                            try { familyName = f.family || postscriptName; } catch(e2) { familyName = postscriptName; }
+                            try { styleName = f.style || ''; } catch(e3) {}
+                            if (postscriptName) {
+                                lines.push(postscriptName + '@@' + familyName + '@@' + styleName);
+                            }
+                        } catch(eItem) {}
+                    }
+                }
+            } catch (eAll) {}
+            return lines.join('\n');
         }
     };
 
@@ -579,4 +681,8 @@ function delMeasByName(name) {
 
 function delAllMeasurements() {
     return AIMeasurment.deleteAll();
+}
+
+function getAllInstalledFonts() {
+    return AIMeasurment.getAllFonts();
 }

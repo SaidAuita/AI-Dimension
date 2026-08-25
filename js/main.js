@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize logic modules
     Presets.init();
     Colors.init();
+    if (typeof FontPicker !== 'undefined') {
+        FontPicker.init();
+    }
     UI.init();
 
     // Load user's last used configuration

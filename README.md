@@ -1,6 +1,6 @@
-# AI Dimension v1.3
+# AI Dimension v1.4
 
-![AI Dimension Interface](images/AI%20Dimension.png)
+![AI Dimension Interface](images/AI%20Dimension_1_4.png)
 
 *( 🇬🇧 [English](#english) | 🇷🇺 [Русский](#русский) )*
 
@@ -15,8 +15,12 @@ This script was created as a spiritual successor and complete rewrite of the pop
 
 ### Main Features and Capabilities
 * **Cross-platform** — Fully supports **Windows** and **macOS** (including Apple Silicon & macOS Sequoia).
+* **Searchable Font Picker (`font`)** — Pick any installed system or Adobe font directly from the panel with instant fuzzy search and cached background loading.
+* **4-Direction Gap Measurement** — Dedicated buttons for measuring horizontal distance (top/bottom) and vertical distance (left/right) between any two selected objects.
+* **4-Quadrant Radius & Diameter** — Measure circle radius (`R`) and diameter (`Ø`) in all 4 directions (Top-Left, Top-Right, Bottom-Left, Bottom-Right) with dedicated horizontal landing shelves.
 * **Drawing Scale support (`scale`)** — Support for scaled drawings (e.g. `1:10`, `1:50`, `1:100`, `10:1`, or numeric multipliers). Perfect for large-format graphics, dielines, and exhibition stands where 75 mm represents 750 mm in reality.
 * **Measurement units** — Support for mm, cm, in, pt, and px. The script's math automatically adapts to your workflow, and the selected unit can be displayed next to the number (the `unit` option).
+* **Drafting Standards Compliance** — Continuous dimension lines and automatic leader line formatting according to drafting standards (ГОСТ / ISO).
 * **Color presets (CMYK)** — Set custom colors for dimension lines and text. Includes 6 customizable color swatch slots.
 * **Settings preservation** — The panel automatically remembers all your settings across Illustrator sessions.
 * **3 preset slots (min / med / max)** — Quick switching between prepared dimension styles. Overwrite them by enabling `save` mode.
@@ -25,11 +29,11 @@ This script was created as a spiritual successor and complete rewrite of the pop
 
 ### Features
 * Dimensioning width (top / bottom) and height (left / right).
-* Dimensioning the gap between two selected objects.
-* Measuring the radius and diameter of circles in two directions: **Top-Right** and **Bottom-Right**.
+* 4 dedicated buttons for horizontal and vertical gap measurement between two selected objects.
+* Measuring the radius and diameter of circles in all 4 directions with landing shelves.
 * Marking the center of an object.
 * Robust calculation of bounds for complex groups, nested groups, and clipping masks (`Clip Groups`).
-* Customizable appearance: stroke weight, gap, indent, arrow size, font size, drawing scale, and precision (up to 3 decimal places).
+* Customizable appearance: stroke weight, gap, indent, arrow size, font family, font size, drawing scale, and precision (up to 3 decimal places).
 * Moving all dimensions to a designated separate layer (`layer` option).
 * Option to place dimensions outside the active artboard (`out artboard` option).
 
@@ -69,8 +73,12 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 
 ### Основные возможности
 * **Кроссплатформенность** — полная поддержка **Windows** и **macOS** (включая Apple Silicon и macOS Sequoia).
+* **Поиск и выбор шрифта (`font`)** — быстрый поиск по всем установленным системным шрифтам и Adobe Fonts прямо в панели с умным фильтром и кэшированием.
+* **4 направления зазора между объектами** — отдельные кнопки для измерения точного расстояния между 2 объектами по горизонтали (сверху/снизу) и по вертикали (слева/справа).
+* **4 квадранта для радиуса и диаметра** — измерение радиуса (`R`) и диаметра (`Ø`) во все 4 стороны (вверх-влево, вверх-вправо, вниз-влево, вниз-вправо) с горизонтальной полочкой-площадкой.
 * **Поддержка масштаба чертежа (`scale`)** — возможность задать масштаб макета (например, `1:10`, `1:50`, `1:100`, `10:1` или числовой множитель). Удобно при разработке наружной рекламы, стендов и чертежей.
 * **Единицы измерения** — поддержка выбора размерностей (mm, cm, in, pt, px). Математика скрипта автоматически адаптируется под ваш рабочий процесс, а выбранную единицу измерения можно выводить рядом с числом (опция `unit`).
+* **Соответствие стандартам черчения** — непрерывная размерная линия при выносе текста наружу (по ГОСТ / ISO).
 * **Цветовые пресеты (CMYK)** — настройка цвета выносных линий и текста. Есть 6 ячеек для сохранения собственных цветов.
 * **Сохранение настроек** — панель автоматически запоминает все параметры между сессиями работы в Illustrator.
 * **3 слота для пресетов (min / med / max)** — быстрое переключение между заготовленными стилями размеров.
@@ -79,14 +87,13 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 
 ### Функционал
 * Простановка ширины (сверху / снизу) и высоты (слева / справа).
-* Простановка размеров между двумя выбранными объектами.
-* Измерение радиуса и диаметра окружностей в двух направлениях: **вправо/вверх** и **вправо/вниз**.
+* 4 отдельные кнопки для простановки горизонтального и вертикального зазора между объектами.
+* Измерение радиуса и диаметра окружностей во всех 4 направлениях с полочкой-выноской.
 * Пометка центра объекта.
 * Корректный и точный расчёт габаритов для сложных групп, вложенных объектов и обтравочных масок (`Clip Groups`).
-* Гибкая настройка: толщина линии (stroke), отступ от объекта (gap), вынос линии (indent), размер стрелки (arrow), размер шрифта, масштаб (scale) и точность округления (до 3 знаков).
+* Гибкая настройка: толщина линии (stroke), отступ от объекта (gap), вынос линии (indent), размер стрелки (arrow), выбор шрифта (font), размер шрифта, масштаб (scale) и точность округления (до 3 знаков).
 * Вынос всех размеров на отдельный слой (опция `layer`).
 * Возможность выносить размеры за пределы активного артборда (опция `out artboard`).
-
 ### Установка
 
 Плагин поддерживает версии Adobe Illustrator CC 2014 – 2026+ на Windows и macOS.
