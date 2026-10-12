@@ -98,10 +98,18 @@ var themeManager = (function () {
         addRule(styleId, ".hostFont", "font-family:" + appSkinInfo.baseFontFamily);
         addRule(styleId, ".hostFont", "color:" + "#" + fontColor);
         
+        var isDark = (panelBgColor.red <= 122);
+        var optionBg = isDark ? "#2b2b2b" : "#f5f5f5";
+        var optionColor = isDark ? "#e0e0e0" : "#1a1a1a";
+        var optgroupBg = isDark ? "#1e1e1e" : "#e0e0e0";
+        var optgroupColor = isDark ? "#8da2be" : "#4a627d";
+
         addRule(styleId, ".hostButton", "background-color:" + "#" + darkBgdColor);
         addRule(styleId, ".hostButton:hover", "background-color:" + "#" + bgdColor);
         addRule(styleId, ".hostButton:active", "background-color:" + "#" + darkBgdColor);
         addRule(styleId, ".hostButton", "border-color: " + "#" + lightBgdColor);        
+        addRule(styleId, "select option, option", "background-color: " + optionBg + "; color: " + optionColor + ";");
+        addRule(styleId, "select optgroup, optgroup", "background-color: " + optgroupBg + "; color: " + optgroupColor + ";");
 
     }
     
