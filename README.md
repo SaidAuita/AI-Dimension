@@ -1,6 +1,6 @@
 # AI Dimension v1.4.1
 
-![AI Dimension Interface](images/AI%20Dimension_1_4.png)
+![AI Dimension Interface](images/AI%20Dimension_1_4_1.png)
 
 *( 🇬🇧 [English](#english) | 🇷🇺 [Русский](#русский) )*
 
