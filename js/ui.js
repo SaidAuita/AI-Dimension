@@ -47,8 +47,8 @@ const UI = (function() {
         inputs.forEach(input => {
             input.addEventListener('change', (e) => {
                 Presets.saveLastUsed();
-                // If it's not the save checkbox, we can redraw the current active measurement
-                if (e.target.id !== 'chk_save') {
+                // Checkboxes shouldn't re-run measurements on canvas
+                if (e.target.id !== 'chk_save' && e.target.type !== 'checkbox') {
                     Presets.clearActiveHighlight();
                     Measurements.reRunMeasurement();
                 }
