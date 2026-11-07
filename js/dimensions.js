@@ -228,7 +228,7 @@ var AIMeasurment = (function () {
         var side = u.side || 'top';
         var strkW = u.strkW;
         var units = u.units ? ' ' + u.units : '';
-        var arW = u.arW;
+        var arW = (u.arW !== undefined && !isNaN(u.arW) && u.arW > 0) ? u.arW : 0;
         var gap = u.gap;
         var stopBot = u.stopBot;
         var stopTop = u.stopTop + 1;
@@ -239,7 +239,7 @@ var AIMeasurment = (function () {
         var layName = u.layName;
         var outArtboard = u.outArtboard;
 
-        var arH = arW / 1.9;
+        var arH = arW > 0 ? (arW / 1.9) : 0;
         var col = setCmyk(u.colComp);
 
         var bounds, left, right, top, bott, elW, elH, rect;
@@ -345,6 +345,7 @@ var AIMeasurment = (function () {
         }
 
         function _addArrow(points) {
+            if (!points || points.length === 0 || arW <= 0) return null;
             var arrow = meas.pathItems.add();
             arrow.setEntirePath(points);
             arrow.stroked = true;
@@ -387,11 +388,15 @@ var AIMeasurment = (function () {
                 stopR = stopL.duplicate();
                 stopR.translate(sideLength);
 
-                arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
-                arL = _addArrow(arPoints);
-                arR = arL.duplicate();
-                arR.rotate(180);
-                arR.translate(sideLength - arW);
+                if (arW > 0) {
+                    arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
+                    arL = _addArrow(arPoints);
+                    if (arL) {
+                        arR = arL.duplicate();
+                        arR.rotate(180);
+                        arR.translate(sideLength - arW);
+                    }
+                }
 
             } else {
                 stopPoints = [[0, stopBot], [0, stopTop]];
@@ -409,11 +414,15 @@ var AIMeasurment = (function () {
                     _addLine([[-arW * 2, midY], [sideLength + arW * 2, midY]]);
                 }
 
-                arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
-                arL = _addArrow(arPoints);
-                arR = arL.duplicate();
-                arR.translate(sideLength);
-                arL.rotate(180, true, true, true, true, Transformation.LEFT);
+                if (arW > 0) {
+                    arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
+                    arL = _addArrow(arPoints);
+                    if (arL) {
+                        arR = arL.duplicate();
+                        arR.translate(sideLength);
+                        arL.rotate(180, true, true, true, true, Transformation.LEFT);
+                    }
+                }
             }
             return meas;
         }
@@ -489,10 +498,12 @@ var AIMeasurment = (function () {
             var shelfEndXr = isLeft ? (xr - stopTop * 2) : (xr + stopTop * 2);
 
             _addLine([[0, 0], [elW / 2, 0]]);
-            if (elW / 2 > (arW + strkW)) {
+            if (arW > 0 && elW / 2 > (arW + strkW)) {
                 var ar0r = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
-                ar0r.rotate(180);
-                ar0r.translate(elW / 2 - arW);
+                if (ar0r) {
+                    ar0r.rotate(180);
+                    ar0r.translate(elW / 2 - arW);
+                }
                 meas.position = [cx, cy + arH / 2];
             } else {
                 meas.position = [cx, cy];
@@ -532,11 +543,13 @@ var AIMeasurment = (function () {
             var shelfEndXd = isLeft ? (xd - stopTop * 2) : (xd + stopTop * 2);
 
             _addLine([[0, 0], [elW, 0]]);
-            if (elW > (arW + strkW) * 2) {
+            if (arW > 0 && elW > (arW + strkW) * 2) {
                 var ar0d = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
-                var ar1d = ar0d.duplicate();
-                ar1d.rotate(180);
-                ar1d.translate(elW - arW);
+                if (ar0d) {
+                    var ar1d = ar0d.duplicate();
+                    ar1d.rotate(180);
+                    ar1d.translate(elW - arW);
+                }
                 meas.position = [left, cy + arH / 2];
             } else {
                 meas.position = [left, cy];

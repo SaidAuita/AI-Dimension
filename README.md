@@ -1,4 +1,4 @@
-# AI Dimension v1.4
+# AI Dimension v1.4.1
 
 ![AI Dimension Interface](images/AI%20Dimension_1_4.png)
 
@@ -15,6 +15,7 @@ This script was created as a spiritual successor and complete rewrite of the pop
 
 ### Main Features and Capabilities
 * **Cross-platform** — Fully supports **Windows** and **macOS** (including Apple Silicon & macOS Sequoia).
+* **Arrow toggle & suppression (`arrow`)** — Checkbox to quickly toggle dimension arrows ON/OFF. Entering `0` or leaving the arrow field blank completely disables arrows cleanly.
 * **Searchable Font Picker (`font`)** — Pick any installed system or Adobe font directly from the panel with instant fuzzy search and cached background loading.
 * **4-Direction Gap Measurement** — Dedicated buttons for measuring horizontal distance (top/bottom) and vertical distance (left/right) between any two selected objects.
 * **4-Quadrant Radius & Diameter** — Measure circle radius (`R`) and diameter (`Ø`) in all 4 directions (Top-Left, Top-Right, Bottom-Left, Bottom-Right) with dedicated horizontal landing shelves.
@@ -33,7 +34,7 @@ This script was created as a spiritual successor and complete rewrite of the pop
 * Measuring the radius and diameter of circles in all 4 directions with landing shelves.
 * Marking the center of an object.
 * Robust calculation of bounds for complex groups, nested groups, and clipping masks (`Clip Groups`).
-* Customizable appearance: stroke weight, gap, indent, arrow size, font family, font size, drawing scale, and precision (up to 3 decimal places).
+* Customizable appearance: stroke weight, gap, indent, arrow toggle/size, font family, font size, drawing scale, and precision (up to 3 decimal places).
 * Moving all dimensions to a designated separate layer (`layer` option).
 * Option to place dimensions outside the active artboard (`out artboard` option).
 
@@ -96,6 +97,7 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 
 ### Основные возможности
 * **Кроссплатформенность** — полная поддержка **Windows** и **macOS** (включая Apple Silicon и macOS Sequoia).
+* **Управление стрелками (`arrow`)** — чекбокс для быстрого включения/отключения стрелок на размерных линиях. При вводе `0` или очистке поля размера стрелки они отключаются автоматически.
 * **Поиск и выбор шрифта (`font`)** — быстрый поиск по всем установленным системным шрифтам и Adobe Fonts прямо в панели с умным фильтром и кэшированием.
 * **4 направления зазора между объектами** — отдельные кнопки для измерения точного расстояния между 2 объектами по горизонтали (сверху/снизу) и по вертикали (слева/справа).
 * **4 квадранта для радиуса и диаметра** — измерение радиуса (`R`) и диаметра (`Ø`) во все 4 стороны (вверх-влево, вверх-вправо, вниз-влево, вниз-вправо) с горизонтальной полочкой-площадкой.
@@ -114,9 +116,10 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 * Измерение радиуса и диаметра окружностей во всех 4 направлениях с полочкой-выноской.
 * Пометка центра объекта.
 * Корректный и точный расчёт габаритов для сложных групп, вложенных объектов и обтравочных масок (`Clip Groups`).
-* Гибкая настройка: толщина линии (stroke), отступ от объекта (gap), вынос линии (indent), размер стрелки (arrow), выбор шрифта (font), размер шрифта, масштаб (scale) и точность округления (до 3 знаков).
+* Гибкая настройка: толщина линии (stroke), отступ от объекта (gap), вынос линии (indent), включение/размер стрелки (arrow), выбор шрифта (font), размер шрифта, масштаб (scale) и точность округления (до 3 знаков).
 * Вынос всех размеров на отдельный слой (опция `layer`).
 * Возможность выносить размеры за пределы активного артборда (опция `out artboard`).
+
 ### Установка
 
 Плагин поддерживает версии Adobe Illustrator CC 2014 – 2026+ на Windows и macOS.

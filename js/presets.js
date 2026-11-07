@@ -11,15 +11,15 @@ const Presets = (function() {
     // Default presets (if nothing saved)
     const defaultPresets = {
         min: {
-            add_mm: false, scale: '1:1', font_name: 'default', line_len: 5, precis: 0, line_stroke: 0.1, gap: 0.5, line_indent: 0.5, arrow_width: 2,
+            add_mm: false, scale: '1:1', font_name: 'default', line_len: 5, precis: 0, line_stroke: 0.1, gap: 0.5, line_indent: 0.5, use_arrow: true, arrow_width: 2,
             font_size: 8, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
         },
         med: {
-            add_mm: false, scale: '1:1', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 1, line_indent: 1, arrow_width: 3.5,
+            add_mm: false, scale: '1:1', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 1, line_indent: 1, use_arrow: true, arrow_width: 3.5,
             font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
         },
         max: {
-            add_mm: false, scale: '1:1', font_name: 'default', line_len: 20, precis: 3, line_stroke: 0.5, gap: 2, line_indent: 2, arrow_width: 5,
+            add_mm: false, scale: '1:1', font_name: 'default', line_len: 20, precis: 3, line_stroke: 0.5, gap: 2, line_indent: 2, use_arrow: true, arrow_width: 5,
             font_size: 24, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
         }
     };
@@ -28,7 +28,7 @@ const Presets = (function() {
     
     // Default fallback state (the values hardcoded in index.html)
     const defaultGlobalState = {
-        add_mm: false, scale: '1:1', unit_select: 'mm', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 0.5, line_indent: 1.0, arrow_width: 3.5,
+        add_mm: false, scale: '1:1', unit_select: 'mm', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 0.5, line_indent: 1.0, use_arrow: true, arrow_width: 3.5,
         font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
     };
 
@@ -62,6 +62,7 @@ const Presets = (function() {
             line_stroke: document.getElementById('line_stroke').value,
             gap: document.getElementById('gap').value,
             line_indent: document.getElementById('line_indent').value,
+            use_arrow: document.getElementById('use_arrow') ? document.getElementById('use_arrow').checked : true,
             arrow_width: document.getElementById('arrow_width').value,
             font_size: document.getElementById('font_size').value,
             cyan: document.getElementById('cyan').value,
@@ -91,7 +92,24 @@ const Presets = (function() {
         document.getElementById('line_stroke').value = p.line_stroke !== undefined ? p.line_stroke : 0.2;
         document.getElementById('gap').value = p.gap !== undefined ? p.gap : 0.5;
         document.getElementById('line_indent').value = p.line_indent !== undefined ? p.line_indent : 1.0;
-        document.getElementById('arrow_width').value = p.arrow_width !== undefined ? p.arrow_width : 3.5;
+        
+        const useArrowEl = document.getElementById('use_arrow');
+        const arrowInput = document.getElementById('arrow_width');
+        if (useArrowEl) {
+            if (p.use_arrow !== undefined) {
+                useArrowEl.checked = !!p.use_arrow;
+            } else if (p.arrow_width !== undefined) {
+                const val = parseFloat(p.arrow_width);
+                useArrowEl.checked = !isNaN(val) && val > 0;
+            }
+        }
+        if (arrowInput) {
+            arrowInput.value = p.arrow_width !== undefined ? p.arrow_width : 3.5;
+            if (useArrowEl) {
+                arrowInput.disabled = !useArrowEl.checked;
+            }
+        }
+
         document.getElementById('font_size').value = p.font_size !== undefined ? p.font_size : 14;
         document.getElementById('cyan').value = p.cyan !== undefined ? p.cyan : 0;
         document.getElementById('magenta').value = p.magenta !== undefined ? p.magenta : 0;
