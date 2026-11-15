@@ -224,20 +224,27 @@ var AIMeasurment = (function () {
 
 
     // --- Core Measurement Execution ---
-    function executeMeasure(u, iterator) {
+    function executeMeasure(u, iterator, tier) {
+        tier = tier || 0;
         var side = u.side || 'top';
         var strkW = u.strkW;
         var units = u.units ? ' ' + u.units : '';
         var arW = (u.arW !== undefined && !isNaN(u.arW) && u.arW > 0) ? u.arW : 0;
         var gap = u.gap;
         var stopBot = u.stopBot;
-        var stopTop = u.stopTop + 1;
         var fontSize = u.fontSize;
         var precis = (u.precis !== undefined) ? u.precis : 2;
         var measType = u.measType;
         var addLay = u.addLay;
         var layName = u.layName;
         var outArtboard = u.outArtboard;
+
+        var cascadeStep = 0;
+        if (tier > 0) {
+            // Adaptive cascade step based on font size and gap (points)
+            cascadeStep = (fontSize * 1.35) + (gap * 1.2);
+        }
+        var stopTop = u.stopTop + 1 + cascadeStep;
 
         var arH = arW > 0 ? (arW / 1.9) : 0;
         var col = setCmyk(u.colComp);
@@ -324,163 +331,172 @@ var AIMeasurment = (function () {
             }
         }
 
-        meas = lay.groupItems.add();
-        if (measType !== 'cent' && measType !== 'diam' && measType !== 'rad') {
-            txt = meas.textFrames.add();
-        }
-
-        meas.name = makeRandStr(7);
-
-        // --- Drawing sub-routines ---
-        function _addLine(points) {
-            var line = meas.pathItems.add();
-            line.setEntirePath(points);
-            line.stroked = true;
-            line.strokeWidth = strkW;
-            line.strokeCap = StrokeCap.BUTTENDCAP;
-            line.strokeDashes = [];
-            line.filled = false;
-            if (col) line.strokeColor = col;
-            return line;
-        }
-
-        function _addArrow(points) {
-            if (!points || points.length === 0 || arW <= 0) return null;
-            var arrow = meas.pathItems.add();
-            arrow.setEntirePath(points);
-            arrow.stroked = true;
-            arrow.strokeWidth = strkW;
-            arrow.strokeJoin = StrokeJoin.ROUNDENDJOIN;
-            arrow.strokeDashes = [];
-            arrow.closed = true;
-            if (col) {
-                arrow.strokeColor = col;
-                arrow.fillColor = col;
+        try {
+            meas = lay.groupItems.add();
+            if (measType !== 'cent' && measType !== 'diam' && measType !== 'rad') {
+                txt = meas.textFrames.add();
             }
-            return arrow;
-        }
 
-        function _addLabel(content) {
-            var labl = txt;
-            labl.contents = content;
-            labl.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
-            if (col) {
-                labl.textRange.characterAttributes.fillColor = col;
+            meas.name = makeRandStr(7);
+
+            // --- Drawing sub-routines ---
+            function _addLine(points) {
+                var line = meas.pathItems.add();
+                line.setEntirePath(points);
+                line.stroked = true;
+                line.strokeWidth = strkW;
+                line.strokeCap = StrokeCap.BUTTENDCAP;
+                line.strokeDashes = [];
+                line.filled = false;
+                if (col) line.strokeColor = col;
+                return line;
             }
-            applyFontToTextRange(labl.textRange, u.fontName);
-            labl.textRange.characterAttributes.size = fontSize;
-            return labl;
-        }
 
-        function _addBaseMeas(sideLength) {
-            var linePoints, stopPoints, arPoints, lineL, lineR, stopL, stopR, arL, arR;
-            var midY = stopTop - txt.height / 2;
+            function _addArrow(points) {
+                if (!points || points.length === 0 || arW <= 0) return null;
+                var arrow = meas.pathItems.add();
+                arrow.setEntirePath(points);
+                arrow.stroked = true;
+                arrow.strokeWidth = strkW;
+                arrow.strokeJoin = StrokeJoin.ROUNDENDJOIN;
+                arrow.strokeDashes = [];
+                arrow.closed = true;
+                if (col) {
+                    arrow.strokeColor = col;
+                    arrow.fillColor = col;
+                }
+                return arrow;
+            }
 
-            if (txt.width < (sideLength - gap * 2 - arW * 3)) {
-                txt.position = [sideLength / 2 - txt.width / 2, stopTop];
-                linePoints = [[0, midY], [sideLength / 2 - txt.width / 2 - gap / 2, midY]];
-                lineL = _addLine(linePoints);
-                lineR = lineL.duplicate();
-                lineR.translate(lineL.width + txt.width + gap);
+            function _addLabel(content) {
+                var labl = txt;
+                labl.contents = content;
+                labl.paragraphs[0].paragraphAttributes.justification = Justification.CENTER;
+                if (col) {
+                    labl.textRange.characterAttributes.fillColor = col;
+                }
+                applyFontToTextRange(labl.textRange, u.fontName);
+                labl.textRange.characterAttributes.size = fontSize;
+                return labl;
+            }
 
-                stopPoints = [[0, stopBot], [0, stopTop]];
+            function _addBaseMeas(sideLength, isBottom) {
+                var stopPoints, arPoints, stopL, stopR;
+                var textW = txt.width;
+                var textH = txt.height;
+                var dir = isBottom ? -1 : 1;
+                var midY = isBottom ? (-stopTop + textH / 2) : (stopTop - textH / 2);
+                var txtY = isBottom ? (-stopTop + textH) : stopTop;
+
+                // Extension lines
+                stopPoints = [[0, dir * stopBot], [0, dir * stopTop]];
                 stopL = _addLine(stopPoints);
-                stopR = stopL.duplicate();
-                stopR.translate(sideLength);
+                stopR = _addLine([[sideLength, dir * stopBot], [sideLength, dir * stopTop]]);
 
-                if (arW > 0) {
-                    arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
-                    arL = _addArrow(arPoints);
-                    if (arL) {
-                        arR = arL.duplicate();
-                        arR.rotate(180);
-                        arR.translate(sideLength - arW);
+                // Case 1: Text + gaps + inner arrows fit inside
+                if (textW < (sideLength - gap * 2 - arW * 3)) {
+                    txt.position = [sideLength / 2 - textW / 2, txtY];
+                    var lineLen = sideLength / 2 - textW / 2 - gap / 2;
+                    if (lineLen > 0) {
+                        _addLine([[0, midY], [lineLen, midY]]);
+                        _addLine([[sideLength - lineLen, midY], [sideLength, midY]]);
+                    }
+
+                    if (arW > 0) {
+                        arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+                        arPoints = [[sideLength - arW, midY - arH / 2], [sideLength, midY], [sideLength - arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+                    }
+                } 
+                // Case 2: Text fits between extension lines, but inner arrows/lines don't
+                else if (textW < (sideLength - (arW > 0 ? arW : 0))) {
+                    txt.position = [sideLength / 2 - textW / 2, txtY];
+                    var innerSpace = sideLength / 2 - textW / 2 - gap / 2;
+                    if (innerSpace > 0.5) {
+                        _addLine([[0, midY], [innerSpace, midY]]);
+                        _addLine([[sideLength - innerSpace, midY], [sideLength, midY]]);
+                    }
+
+                    if (arW > 0) {
+                        // Outside tails and inward-pointing arrows
+                        _addLine([[-arW * 2, midY], [0, midY]]);
+                        _addLine([[sideLength, midY], [sideLength + arW * 2, midY]]);
+
+                        arPoints = [[-arW, midY - arH / 2], [0, midY], [-arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+
+                        arPoints = [[sideLength + arW, midY - arH / 2], [sideLength, midY], [sideLength + arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+                    }
+                } 
+                // Case 3: Text does NOT fit between extension lines -> place outside
+                else {
+                    var tailR = arW > 0 ? (arW * 2) : 0;
+                    txt.position = [sideLength + tailR + gap, txtY];
+                    _addLine([[0, midY], [sideLength, midY]]);
+
+                    if (arW > 0) {
+                        _addLine([[-arW * 2, midY], [0, midY]]);
+                        _addLine([[sideLength, midY], [sideLength + tailR, midY]]);
+
+                        arPoints = [[-arW, midY - arH / 2], [0, midY], [-arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+
+                        arPoints = [[sideLength + arW, midY - arH / 2], [sideLength, midY], [sideLength + arW, midY + arH / 2]];
+                        _addArrow(arPoints);
+                    } else {
+                        _addLine([[sideLength, midY], [sideLength + gap, midY]]);
                     }
                 }
 
-            } else {
-                stopPoints = [[0, stopBot], [0, stopTop]];
-                stopL = _addLine(stopPoints);
-                stopR = stopL.duplicate();
-                stopR.translate(sideLength);
-
-                if (txt.width < sideLength - arW) {
-                    txt.position = [sideLength / 2 - txt.width / 2, stopTop];
-                    lineL = _addLine([[-arW * 2, midY], [sideLength / 2 - txt.width / 2 - gap / 2, midY]]);
-                    lineR = _addLine([[sideLength / 2 + txt.width / 2 + gap / 2, midY], [sideLength + arW * 2, midY]]);
-                } else {
-                    txt.position = [sideLength + arW * 2 + gap, stopTop];
-                    // Continuous dimension line between extension lines plus outside tails
-                    _addLine([[-arW * 2, midY], [sideLength + arW * 2, midY]]);
-                }
-
-                if (arW > 0) {
-                    arPoints = [[arW, midY - arH / 2], [0, midY], [arW, midY + arH / 2]];
-                    arL = _addArrow(arPoints);
-                    if (arL) {
-                        arR = arL.duplicate();
-                        arR.translate(sideLength);
-                        arL.rotate(180, true, true, true, true, Transformation.LEFT);
-                    }
-                }
+                return {
+                    group: meas,
+                    stopL: stopL,
+                    stopR: stopR
+                };
             }
-            return meas;
-        }
 
-        // --- Execution Branches ---
-        if (measType === 'linear' || measType === 'gap_h' || measType === 'gap_v') {
-            var activeSide = side;
-            if (measType === 'gap_h' && !activeSide) activeSide = 'top';
-            if (measType === 'gap_v' && !activeSide) activeSide = 'left';
+            // --- Execution Branches ---
+            if (measType === 'linear' || measType === 'gap_h' || measType === 'gap_v') {
+                var activeSide = side;
+                if (measType === 'gap_h' && !activeSide) activeSide = 'top';
+                if (measType === 'gap_v' && !activeSide) activeSide = 'left';
 
-            switch (activeSide) {
-                case 'top':
-                    txt = _addLabel(lablW + units);
-                    meas = _addBaseMeas(elW);
-                    meas.position = (txt.width < (elW - gap * 2 - arW * 3)) ? [left, top + stopTop] : [left - arW * 2, top + stopTop];
-                    break;
-                case 'bott':
-                    txt = _addLabel(lablW + units);
-                    meas = _addBaseMeas(elW);
-                    meas.rotate(180);
-                    meas.textFrames[0].rotate(180);
-                    if (txt.width < (elW - gap * 2 - arW * 3)) {
-                        meas.position = [left, bott - stopBot];
-                    } else {
-                        if (txt.width > elW - arW) {
-                            meas.textFrames[0].translate(elW + txt.width + arW * 4 + gap * 2);
-                        }
-                        meas.position = [left - arW * 2, bott - stopBot];
-                    }
-                    break;
-                case 'left':
-                    txt = _addLabel(lablH + units);
-                    meas = _addBaseMeas(elH);
-                    meas.rotate(90);
-                    if (txt.height < (elH - gap * 2 - arW * 3)) {
-                        meas.position = [left - meas.width - stopBot, top];
-                    } else {
-                        meas.position = (txt.height > elH - arW) ? 
-                            [left - meas.width - stopBot, top + txt.height + arW * 2 + gap] : 
-                            [left - meas.width - stopBot, top + arW * 2];
-                    }
-                    break;
-                case 'right':
-                    txt = _addLabel(lablH + units);
-                    meas = _addBaseMeas(elH);
-                    meas.rotate(-90);
-                    meas.textFrames[0].rotate(180);
-                    if (txt.height < (elH - gap * 2 - arW * 3)) {
-                        meas.position = [right + stopBot, top];
-                    } else {
-                        meas.position = [right + stopBot, top + arW * 2];
-                        if (txt.height > elH - arW) {
-                            meas.textFrames[0].translate(0, txt.height + elH + arW * 4 + gap * 2);
-                        }
-                    }
-                    break;
-            }
-        } else if (measType === 'rad') {
+                switch (activeSide) {
+                    case 'top':
+                        txt = _addLabel(lablW + units);
+                        var baseT = _addBaseMeas(elW, false);
+                        var dxT = left - baseT.stopL.geometricBounds[0];
+                        var dyT = (top + stopTop) - baseT.stopL.geometricBounds[1];
+                        meas.translate(dxT, dyT);
+                        break;
+                    case 'bott':
+                        txt = _addLabel(lablW + units);
+                        var baseB = _addBaseMeas(elW, true);
+                        var dxB = left - baseB.stopL.geometricBounds[0];
+                        var dyB = (bott - stopBot) - baseB.stopL.geometricBounds[1];
+                        meas.translate(dxB, dyB);
+                        break;
+                    case 'left':
+                        txt = _addLabel(lablH + units);
+                        var baseL = _addBaseMeas(elH, false);
+                        meas.rotate(90);
+                        var dxL = (left - stopBot) - baseL.stopR.geometricBounds[2];
+                        var dyL = top - baseL.stopR.geometricBounds[1];
+                        meas.translate(dxL, dyL);
+                        break;
+                    case 'right':
+                        txt = _addLabel(lablH + units);
+                        var baseR = _addBaseMeas(elH, false);
+                        meas.rotate(-90);
+                        meas.textFrames[0].rotate(180);
+                        var dxR = (right + stopBot) - baseR.stopL.geometricBounds[0];
+                        var dyR = top - baseR.stopL.geometricBounds[1];
+                        meas.translate(dxR, dyR);
+                        break;
+                }
+            } else if (measType === 'rad') {
             if (!isCircle(selection[iterator])) {
                 meas.remove();
                 return;
@@ -502,7 +518,7 @@ var AIMeasurment = (function () {
                 var ar0r = _addArrow([[arW, arH / 2], [0, 0], [arW, -arH / 2]]);
                 if (ar0r) {
                     ar0r.rotate(180);
-                    ar0r.translate(elW / 2 - arW);
+                    ar0r.translate(elW / 2 - arW, 0);
                 }
                 meas.position = [cx, cy + arH / 2];
             } else {
@@ -548,7 +564,7 @@ var AIMeasurment = (function () {
                 if (ar0d) {
                     var ar1d = ar0d.duplicate();
                     ar1d.rotate(180);
-                    ar1d.translate(elW - arW);
+                    ar1d.translate(elW - arW, 0);
                 }
                 meas.position = [left, cy + arH / 2];
             } else {
@@ -585,13 +601,19 @@ var AIMeasurment = (function () {
             shrtVer.duplicate().rotate(180, true, true, true, true, Transformation.BOTTOM);
 
             var longHor = _addLine([[cx + 2 * N_HOR, cy], [right + N, cy]]);
-            longHor.duplicate().translate(-longHor.width - 4 * N_HOR);
+            longHor.duplicate().translate(-longHor.width - 4 * N_HOR, 0);
 
             var longVer = _addLine([[cx, top + N], [cx, cy + 2 * N_VER]]);
             longVer.duplicate().translate(0, -longVer.height - 4 * N_VER);
         }
 
-        return meas.name;
+            return meas.name;
+        } catch (err) {
+            if (meas) {
+                try { meas.remove(); } catch(eR) {}
+            }
+            return null;
+        }
     }
 
     // --- Public API ---
@@ -606,16 +628,45 @@ var AIMeasurment = (function () {
             // Dedicated Gap modes (gap_h, gap_v) or Ctrl+Click on 2 objects
             if ((u.measType === 'gap_h' || u.measType === 'gap_v') || (sel.length === 2 && u.ctrl === true)) {
                 if (sel.length >= 2) {
-                    var singleName = executeMeasure(u, -1);
+                    var singleName = executeMeasure(u, -1, 0);
                     if (singleName) res.push(singleName);
                     return JSON.stringify(res);
                 }
             }
 
             // Normal per-object measurement (1 or more selected objects)
+            var validItems = [];
             for (var i = 0; i < sel.length; i++) {
                 if ((sel[i].name || '').match(/^\d{7}$/)) continue;
-                var measName = executeMeasure(u, i);
+                validItems.push({
+                    index: i,
+                    bounds: getItemBounds(sel[i])
+                });
+            }
+
+            // Stagger/cascade sorting: sort objects spatially to ensure alternating tiers
+            if (u.cascade && validItems.length > 1) {
+                var isVert = (u.side === 'left' || u.side === 'right' || u.measType === 'gap_v');
+                if (isVert) {
+                    // Sort top to bottom (Y descending in Illustrator coordinate system)
+                    validItems.sort(function(a, b) {
+                        var ya = a.bounds ? a.bounds[1] : 0;
+                        var yb = b.bounds ? b.bounds[1] : 0;
+                        return yb - ya;
+                    });
+                } else {
+                    // Sort left to right (X ascending)
+                    validItems.sort(function(a, b) {
+                        var xa = a.bounds ? a.bounds[0] : 0;
+                        var xb = b.bounds ? b.bounds[0] : 0;
+                        return xa - xb;
+                    });
+                }
+            }
+
+            for (var k = 0; k < validItems.length; k++) {
+                var tier = (u.cascade && validItems.length > 1) ? (k % 2) : 0;
+                var measName = executeMeasure(u, validItems[k].index, tier);
                 if (measName) {
                     res.push(measName);
                 }

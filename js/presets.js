@@ -12,15 +12,15 @@ const Presets = (function() {
     const defaultPresets = {
         min: {
             add_mm: false, scale: '1:1', font_name: 'default', line_len: 5, precis: 0, line_stroke: 0.1, gap: 0.5, line_indent: 0.5, use_arrow: true, arrow_width: 2,
-            font_size: 8, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
+            font_size: 8, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false, cascade: false
         },
         med: {
             add_mm: false, scale: '1:1', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 1, line_indent: 1, use_arrow: true, arrow_width: 3.5,
-            font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
+            font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false, cascade: false
         },
         max: {
             add_mm: false, scale: '1:1', font_name: 'default', line_len: 20, precis: 3, line_stroke: 0.5, gap: 2, line_indent: 2, use_arrow: true, arrow_width: 5,
-            font_size: 24, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
+            font_size: 24, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false, cascade: false
         }
     };
 
@@ -29,7 +29,7 @@ const Presets = (function() {
     // Default fallback state (the values hardcoded in index.html)
     const defaultGlobalState = {
         add_mm: false, scale: '1:1', unit_select: 'mm', font_name: 'default', line_len: 10, precis: 2, line_stroke: 0.2, gap: 0.5, line_indent: 1.0, use_arrow: true, arrow_width: 3.5,
-        font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false
+        font_size: 14, cyan: 0, magenta: 0, yellow: 0, black: 100, add_layer: false, layer_name_text: 'layout', out_artboard: false, cascade: false
     };
 
     function init() {
@@ -71,7 +71,8 @@ const Presets = (function() {
             black: document.getElementById('black').value,
             add_layer: document.getElementById('add_layer').checked,
             layer_name_text: document.getElementById('layer_name_text').value,
-            out_artboard: document.getElementById('out_artboard') ? document.getElementById('out_artboard').checked : false
+            out_artboard: document.getElementById('out_artboard') ? document.getElementById('out_artboard').checked : false,
+            cascade: document.getElementById('cascade') ? document.getElementById('cascade').checked : false
         };
     }
 
@@ -120,6 +121,9 @@ const Presets = (function() {
         
         const outArtboard = document.getElementById('out_artboard');
         if(outArtboard && p.out_artboard !== undefined) outArtboard.checked = !!p.out_artboard;
+
+        const cascadeEl = document.getElementById('cascade');
+        if(cascadeEl && p.cascade !== undefined) cascadeEl.checked = !!p.cascade;
     }
 
     function updateActiveHighlight(type) {

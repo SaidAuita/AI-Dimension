@@ -1,6 +1,9 @@
-# AI Dimension v1.4.1
+# AI Dimension v1.4.2
 
-![AI Dimension Interface](images/AI%20Dimension_1_4_1.png)
+![AI Dimension Cascade Demonstration](images/AI%20Dimension_1_4_2-2.png)
+<p align="center"><em>Cascading dimensions mode (cascade on vs cascade off)</em></p>
+
+![AI Dimension Interface & Dimensions](images/AI%20Dimension_1_4_2.png)
 
 *( 🇬🇧 [English](#english) | 🇷🇺 [Русский](#русский) )*
 
@@ -15,6 +18,8 @@ This script was created as a spiritual successor and complete rewrite of the pop
 
 ### Main Features and Capabilities
 * **Cross-platform** — Fully supports **Windows** and **macOS** (including Apple Silicon & macOS Sequoia).
+* **Cascading / Staggered Dimensions (`cascade`)** — Stagger dimension lines in an alternating checkerboard pattern ("через один выше / ниже") when dimensioning multiple adjacent objects to prevent leader lines, dimension lines, and digits from colliding. The height step automatically adapts to the chosen font size and gap.
+* **Precision Alignment & Zero-Shift Fix** — Fixed leader line positioning on narrow objects and characters (eliminated line backward-draw and downward shift). All extension lines are anchored directly to object edges with mathematical precision, preventing accidental digit displacement.
 * **Arrow toggle & suppression (`arrow`)** — Checkbox to quickly toggle dimension arrows ON/OFF. Entering `0` or leaving the arrow field blank completely disables arrows cleanly.
 * **Searchable Font Picker (`font`)** — Pick any installed system or Adobe font directly from the panel with instant fuzzy search and cached background loading.
 * **4-Direction Gap Measurement** — Dedicated buttons for measuring horizontal distance (top/bottom) and vertical distance (left/right) between any two selected objects.
@@ -30,6 +35,7 @@ This script was created as a spiritual successor and complete rewrite of the pop
 
 ### Features
 * Dimensioning width (top / bottom) and height (left / right).
+* Staggered/cascaded dimensioning mode (`cascade`) for multiple objects.
 * 4 dedicated buttons for horizontal and vertical gap measurement between two selected objects.
 * Measuring the radius and diameter of circles in all 4 directions with landing shelves.
 * Marking the center of an object.
@@ -97,6 +103,8 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 
 ### Основные возможности
 * **Кроссплатформенность** — полная поддержка **Windows** и **macOS** (включая Apple Silicon и macOS Sequoia).
+* **Каскадный режим вылетов (`cascade`)** — шахматное чередование размерных линий «через один выше / ниже» при одновременном образмеривании нескольких соседних объектов, предотвращающее наложение размерных линий, стрелок и цифр. Шаг вылета автоматически подстраивается под выбранный размер шрифта и зазор.
+* **Точная привязка без сползания и сбоев** — устранена ошибка сползания выносных линий на узких объектах и буквах (исправлена отрисовка линий в обратную сторону и смещение габаритов). Выносные линии жестко и точно ложатся на грани объектов с нулевой погрешностью. Предотвращено смещение текста в левый нижний угол документа.
 * **Управление стрелками (`arrow`)** — чекбокс для быстрого включения/отключения стрелок на размерных линиях. При вводе `0` или очистке поля размера стрелки они отключаются автоматически.
 * **Поиск и выбор шрифта (`font`)** — быстрый поиск по всем установленным системным шрифтам и Adobe Fonts прямо в панели с умным фильтром и кэшированием.
 * **4 направления зазора между объектами** — отдельные кнопки для измерения точного расстояния между 2 объектами по горизонтали (сверху/снизу) и по вертикали (слева/справа).
@@ -112,6 +120,7 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 
 ### Функционал
 * Простановка ширины (сверху / снизу) и высоты (слева / справа).
+* Каскадная расстановка вылетов в шахматном порядке (опция `cascade`) при выделении нескольких объектов.
 * 4 отдельные кнопки для простановки горизонтального и вертикального зазора между объектами.
 * Измерение радиуса и диаметра окружностей во всех 4 направлениях с полочкой-выноской.
 * Пометка центра объекта.

@@ -62,6 +62,8 @@ const Measurements = (function() {
         const layName = document.getElementById('layer_name_text').value || 'layout';
         const outArtboardEl = document.getElementById('out_artboard');
         const outArtboard = outArtboardEl ? outArtboardEl.checked : false;
+        const cascadeEl = document.getElementById('cascade');
+        const cascade = cascadeEl ? cascadeEl.checked : false;
 
         const fontName = document.getElementById('font_name') ? document.getElementById('font_name').value : 'default';
 
@@ -84,7 +86,8 @@ const Measurements = (function() {
             layName: layName,
             fontName: fontName,
             fontNum: 0,
-            outArtboard: outArtboard
+            outArtboard: outArtboard,
+            cascade: cascade
         };
 
         // If linear or gap measurement, delete old overlapping dimensions first

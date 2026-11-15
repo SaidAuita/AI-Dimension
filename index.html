@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <link id="hostStyle" rel="stylesheet" href="css/styles.css"/>
-    <title>AI Dimension v1.4.1</title>
+    <title>AI Dimension v1.4.2</title>
 </head>
 <body class="hostElt">
 
@@ -171,9 +171,14 @@
         </div>
 
         <div class="row checkboxes-row" style="justify-content: space-between;">
-            <label class="checkbox-label" title="Position dimensions outside active artboard">
-                <input type="checkbox" id="out_artboard"/> out artboard
-            </label>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label class="checkbox-label" title="Position dimensions outside active artboard">
+                    <input type="checkbox" id="out_artboard"/> out artboard
+                </label>
+                <label class="checkbox-label" title="Stagger/cascade dimension lines alternately (higher/lower) for multiple objects">
+                    <input type="checkbox" id="cascade"/> cascade
+                </label>
+            </div>
             <div style="display: flex; align-items: center;">
                 <label class="checkbox-label">
                     <input type="checkbox" id="chk_save"/> save
