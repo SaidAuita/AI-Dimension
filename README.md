@@ -1,9 +1,6 @@
 # AI Dimension v1.4.2
 
-![AI Dimension Cascade Demonstration](images/AI%20Dimension_1_4_2-2.png)
-<p align="center"><em>Cascading dimensions mode (cascade on vs cascade off)</em></p>
-
-![AI Dimension Interface & Dimensions](images/AI%20Dimension_1_4_2.png)
+![AI Dimension Interface](images/AI%20Dimension_1_4_1.png)
 
 *( 🇬🇧 [English](#english) | 🇷🇺 [Русский](#русский) )*
 
@@ -19,11 +16,28 @@ This script was created as a spiritual successor and complete rewrite of the pop
 ### Main Features and Capabilities
 * **Cross-platform** — Fully supports **Windows** and **macOS** (including Apple Silicon & macOS Sequoia).
 * **Cascading / Staggered Dimensions (`cascade`)** — Stagger dimension lines in an alternating checkerboard pattern ("через один выше / ниже") when dimensioning multiple adjacent objects to prevent leader lines, dimension lines, and digits from colliding. The height step automatically adapts to the chosen font size and gap.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4_2-2.png" alt="Cascade On vs Cascade Off" width="600" /><br/>
+    <em>Cascade Mode: alternating tier heights avoid collision on adjacent objects</em>
+  </p>
+
 * **Precision Alignment & Zero-Shift Fix** — Fixed leader line positioning on narrow objects and characters (eliminated line backward-draw and downward shift). All extension lines are anchored directly to object edges with mathematical precision, preventing accidental digit displacement.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4_2.png" alt="Precision Leader Line Alignment" width="450" />
+  </p>
+
 * **Arrow toggle & suppression (`arrow`)** — Checkbox to quickly toggle dimension arrows ON/OFF. Entering `0` or leaving the arrow field blank completely disables arrows cleanly.
 * **Searchable Font Picker (`font`)** — Pick any installed system or Adobe font directly from the panel with instant fuzzy search and cached background loading.
 * **4-Direction Gap Measurement** — Dedicated buttons for measuring horizontal distance (top/bottom) and vertical distance (left/right) between any two selected objects.
 * **4-Quadrant Radius & Diameter** — Measure circle radius (`R`) and diameter (`Ø`) in all 4 directions (Top-Left, Top-Right, Bottom-Left, Bottom-Right) with dedicated horizontal landing shelves.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4.png" alt="AI Dimension Gap & Radius/Diameter Callouts" width="700" /><br/>
+    <em>Gap measurements between objects, 4-quadrant radius and diameter shelves</em>
+  </p>
+
 * **Drawing Scale support (`scale`)** — Support for scaled drawings (e.g. `1:10`, `1:50`, `1:100`, `10:1`, or numeric multipliers). Perfect for large-format graphics, dielines, and exhibition stands where 75 mm represents 750 mm in reality.
 * **Measurement units** — Support for mm, cm, in, pt, and px. The script's math automatically adapts to your workflow, and the selected unit can be displayed next to the number (the `unit` option).
 * **Drafting Standards Compliance** — Continuous dimension lines and automatic leader line formatting according to drafting standards (ГОСТ / ISO).
@@ -104,11 +118,28 @@ The plugin supports Adobe Illustrator CC 2014 – 2026+ on Windows & macOS.
 ### Основные возможности
 * **Кроссплатформенность** — полная поддержка **Windows** и **macOS** (включая Apple Silicon и macOS Sequoia).
 * **Каскадный режим вылетов (`cascade`)** — шахматное чередование размерных линий «через один выше / ниже» при одновременном образмеривании нескольких соседних объектов, предотвращающее наложение размерных линий, стрелок и цифр. Шаг вылета автоматически подстраивается под выбранный размер шрифта и зазор.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4_2-2.png" alt="Сравнение cascade on и cascade off" width="600" /><br/>
+    <em>Каскадный режим: шахматное чередование высоты размерных линий устраняет наложения</em>
+  </p>
+
 * **Точная привязка без сползания и сбоев** — устранена ошибка сползания выносных линий на узких объектах и буквах (исправлена отрисовка линий в обратную сторону и смещение габаритов). Выносные линии жестко и точно ложатся на грани объектов с нулевой погрешностью. Предотвращено смещение текста в левый нижний угол документа.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4_2.png" alt="Точная привязка выносок к граням" width="450" />
+  </p>
+
 * **Управление стрелками (`arrow`)** — чекбокс для быстрого включения/отключения стрелок на размерных линиях. При вводе `0` или очистке поля размера стрелки они отключаются автоматически.
 * **Поиск и выбор шрифта (`font`)** — быстрый поиск по всем установленным системным шрифтам и Adobe Fonts прямо в панели с умным фильтром и кэшированием.
 * **4 направления зазора между объектами** — отдельные кнопки для измерения точного расстояния между 2 объектами по горизонтали (сверху/снизу) и по вертикали (слева/справа).
 * **4 квадранта для радиуса и диаметра** — измерение радиуса (`R`) и диаметра (`Ø`) во все 4 стороны (вверх-влево, вверх-вправо, вниз-влево, вниз-вправо) с горизонтальной полочкой-площадкой.
+
+  <p align="center">
+    <img src="images/AI%20Dimension_1_4.png" alt="AI Dimension - Зазоры, радиусы и диаметры" width="700" /><br/>
+    <em>Измерение зазоров между объектами, радиусы и диаметры с посадочными полочками</em>
+  </p>
+
 * **Поддержка масштаба чертежа (`scale`)** — возможность задать масштаб макета (например, `1:10`, `1:50`, `1:100`, `10:1` или числовой множитель). Удобно при разработке наружной рекламы, стендов и чертежей.
 * **Единицы измерения** — поддержка выбора размерностей (mm, cm, in, pt, px). Математика скрипта автоматически адаптируется под ваш рабочий процесс, а выбранную единицу измерения можно выводить рядом с числом (опция `unit`).
 * **Соответствие стандартам черчения** — непрерывная размерная линия при выносе текста наружу (по ГОСТ / ISO).
